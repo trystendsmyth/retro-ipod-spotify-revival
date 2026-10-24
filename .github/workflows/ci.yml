@@ -1,0 +1,32 @@
+name: ci
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  python:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r frontend/requirements.txt pytest
+      - run: python -m pytest -q tests
+  shell:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - run: shellcheck -S warning install/install.sh install/bin/*.sh tests/*.sh
+      - run: bash tests/test_configure_display.sh
+  clickwheel:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build pigpio v79 (library only)
+        run: |
+          curl -fsSL https://github.com/joan2937/pigpio/archive/refs/tags/v79.tar.gz | tar xz
+          make -C pigpio-79 libpigpio.so
+      - name: Compile click.c (default and st7789 pin maps)
+        run: |
+          gcc -Wall -Werror=implicit-function-declaration -pthread -O2 -Ipigpio-79 -Lpigpio-79 -o click clickwheel/click.c -lpigpio -lrt
+          gcc -Wall -pthread -O2 -DDATA_PIN=5 -DNO_HAPTIC -Ipigpio-79 -Lpigpio-79 -o click5 clickwheel/click.c -lpigpio -lrt

@@ -1,0 +1,95 @@
+# spot-revival wiring harness (WireViz 0.4 format: https://github.com/wireviz/WireViz)
+# Render:  pip install wireviz==0.4.1 && wireviz docs/wiring/src/harness.yml -o docs/wiring
+# Pin numbers on PI are physical header pins (BCM names in pinlabels).
+# Every connection here is also drawn as a schematic in docs/wiring/0*.svg and listed
+# with its source in docs/wiring/README.md.
+
+connectors:
+  PI:
+    type: Raspberry Pi Zero 2 W / Zero W
+    subtype: 40-pin header + TV test pad
+    pins: [1, 2, 6, 16, 22, 37, 39, TV, TVGND]
+    pinlabels: [3V3, 5V, GND, GPIO23, GPIO25, GPIO26, GND, TV (composite), GND pad]
+  J1:
+    type: Click wheel
+    subtype: 8-pin 0.5 mm FPC breakout
+    pins: [1, 2, 6, 8]
+    pinlabels: [VCC, CLOCK, DATA, GND]
+  HAPTIC:
+    type: Haptic driver (perfboard)
+    subtype: R1 220R, Q1 2N3904, D1 1N4148, M1
+    pins: [IN, 5V, GND]
+    pinlabels: [R1 to Q1 base, M1+ / D1 cathode, Q1 emitter]
+  DISP:
+    type: Adafruit 911 TFT driver
+    subtype: 4-wire cable
+    pins: [1, 2, 3, 4]
+    pinlabels: [V+ red, GND black, GND video, VIDEO]
+  BOOST:
+    type: Adafruit 2030 PowerBoost 1000 Basic
+    pins: [5V, GND, EN]
+  SW1:
+    type: Hold switch (SPST)
+    pins: [A, B]
+  BOOSTGND:
+    style: simple
+    type: GND (PowerBoost)
+
+cables:
+  W_WHEEL:
+    wirecount: 4
+    colors: [RD, VT, TQ, BK]
+    gauge: 30 AWG
+    notes: keep short; click wheel data runs at ~60 kHz
+  W_HAPTIC:
+    wirecount: 2
+    colors: [GN, BK]
+    gauge: 30 AWG
+  W_VIDEO:
+    wirecount: 2
+    colors: [YE, BK]
+    gauge: 30 AWG
+    notes: solder to the TV / GND pads under the Zero 2 W
+  W_DISP_PWR:
+    wirecount: 2
+    colors: [RD, BK]
+    gauge: 26 AWG
+  W_PI_PWR:
+    wirecount: 2
+    colors: [RD, BK]
+    gauge: 24 AWG
+    notes: 5 V into the header bypasses the Pi's input protection
+  W_HAPTIC_PWR:
+    wirecount: 1
+    colors: [RD]
+    gauge: 30 AWG
+  W_SW:
+    wirecount: 2
+    colors: [WH, BK]
+    gauge: 30 AWG
+
+connections:
+  - - J1: [1, 2, 6, 8]
+    - W_WHEEL: [1-4]
+    - PI: [1, 16, 22, 6]
+  - - PI: [37, 39]
+    - W_HAPTIC: [1, 2]
+    - HAPTIC: [IN, GND]
+  - - PI: [TV, TVGND]
+    - W_VIDEO: [1, 2]
+    - DISP: [4, 3]
+  - - BOOST: [5V, GND]
+    - W_PI_PWR: [1, 2]
+    - PI: [2, 6]
+  - - BOOST: [5V, GND]
+    - W_DISP_PWR: [1, 2]
+    - DISP: [1, 2]
+  - - BOOST: [5V]
+    - W_HAPTIC_PWR: [1]
+    - HAPTIC: [5V]
+  - - BOOST: [EN]
+    - W_SW: [1]
+    - SW1: [A]
+  - - SW1: [B]
+    - W_SW: [2]
+    - BOOSTGND

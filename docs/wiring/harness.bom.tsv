@@ -1,0 +1,13 @@
+Id	Description	Qty	Unit	Designators
+1	Cable, 1 x 30 AWG	0	m	W_HAPTIC_PWR
+2	Cable, 2 x 24 AWG	0	m	W_PI_PWR
+3	Cable, 2 x 26 AWG	0	m	W_DISP_PWR
+4	Cable, 2 x 30 AWG	0	m	W_HAPTIC, W_SW, W_VIDEO
+5	Cable, 4 x 30 AWG	0	m	W_WHEEL
+6	Connector, Adafruit 2030 PowerBoost 1000 Basic, 3 pins	1		BOOST
+7	Connector, Adafruit 911 TFT driver, 4-wire cable, 4 pins	1		DISP
+8	Connector, Click wheel, 8-pin 0.5 mm FPC breakout, 4 pins	1		J1
+9	Connector, GND (PowerBoost)	1		
+10	Connector, Haptic driver (perfboard), R1 220R, Q1 2N3904, D1 1N4148, M1, 3 pins	1		HAPTIC
+11	Connector, Hold switch (SPST), 2 pins	1		SW1
+12	Connector, Raspberry Pi Zero 2 W / Zero W, 40-pin header + TV test pad, 9 pins	1		PI
