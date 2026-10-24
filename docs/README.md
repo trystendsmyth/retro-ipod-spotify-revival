@@ -1,11 +1,17 @@
-# Spotify OAuth HTTPS relay (GitHub Pages)
+# Retro iPod Spotify Revival
 
-Deploy this folder as GitHub Pages (Settings → Pages → Deploy from branch → `/docs`).
+This site hosts the Spotify login relay for the iPod build. You don't need to open
+anything here directly.
 
-Then register this Redirect URI on your Spotify developer app:
+**Redirect URI to register in the Spotify developer dashboard:**
 
-```text
-https://oliver-vv.github.io/Spotify-iPod-Classic/spotify-callback.html
-```
+    https://trystendsmyth.github.io/retro-ipod-spotify-revival/spotify-callback.html
 
-If you rename the GitHub user or repo, update that URL in the Spotify dashboard and in `/etc/spotifypod/config.env` (`SPOTIPY_REDIRECT_URI`).
+After you approve access on your phone, Spotify sends you to that page, which passes the
+login back to the iPod. It only forwards to `*.local` names or private network addresses.
+If you forked this repo, your address is
+`https://<your-github-user>.github.io/<repo-name>/spotify-callback.html`.
+
+- [Build guide](guide/README.md)
+- [Wiring diagrams](wiring/README.md)
+- [Source code](https://github.com/trystendsmyth/retro-ipod-spotify-revival)

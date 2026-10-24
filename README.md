@@ -3,7 +3,8 @@
 **Spotify in a 4th-generation iPod, rebuilt for 2026.** A Raspberry Pi Zero W (or, as an
 alternative, a Zero 2 W) inside an iPod "Click Wheel" (model A1059) case, driven by the
 original click wheel, with haptic feedback, Spotify Connect playback and your Spotify
-library on a tiny screen.
+library on a tiny screen. It also plays your own DRM-free music files from the SD card,
+under **Music on iPod** ([guide chapter 9b](docs/guide/09b-own-music.md)).
 
 <p align="center">
   <img src="docs/images/ui/320x240-01-main-menu.png" width="240" alt="Main menu">
@@ -35,6 +36,7 @@ with the source for every connection.
 ```
 click wheel --(GPIO, pigpio)--> clickwheel/click.c --UDP 127.0.0.1:9090--> frontend/spotifypod.py (tkinter UI)
                                                                               |-- go-librespot :3678 (Spotify Connect, audio)
+                                                                              |-- MPD :6600 (music files in /srv/music)
                                                                               |-- Spotify Web API (library/search, PKCE login)
                                                                               `-- SQLite cache
 phone --> http://ipod.local (portal/: Spotify linking, Bluetooth pairing, power)
@@ -54,8 +56,10 @@ phone --> http://ipod.local (portal/: Spotify linking, Bluetooth pairing, power)
 
 * Verified in software (CI): the click wheel program compiles against pigpio; the
   boot-config script is tested against fixture `config.txt`/`cmdline.txt` files; the
-  Web API parsing is tested against Spotify's 2026 response shapes; the UI renders at
-  320x240 and 720x480 (composite) with demo data.
+  Web API parsing is tested against Spotify's 2026 response shapes; the MPD client and
+  the Spotify/local-music switching are tested, the MPD client also against a real MPD
+  with a null audio output; the UI renders at 320x240 and 720x480 (composite) with demo
+  data.
 * **Not yet verified on hardware by this repository.** The hardware follows the original
   sPot; the software path follows oliver-vv's fork (Zero 2 W) and thehajime's fork
   (go-librespot on a Zero W). If you build one, please open an issue with what worked.

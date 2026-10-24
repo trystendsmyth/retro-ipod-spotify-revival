@@ -12,16 +12,26 @@ from spotipy.oauth2 import SpotifyPKCE
 import datastore
 import player
 
-# Load /etc/spotifypod/config.env if present (systemd EnvironmentFile also works)
-_ENV_FILE = os.environ.get("SPOTIFYPOD_CONFIG", "/etc/spotifypod/config.env")
-if os.path.isfile(_ENV_FILE):
-    with open(_ENV_FILE) as fh:
+# Load /etc/spotifypod/config.env (settings) and install.env (written by the installer)
+# if present; systemd EnvironmentFile also works.
+_ENV_FILES = (
+    os.environ.get("SPOTIFYPOD_CONFIG", "/etc/spotifypod/config.env"),
+    os.environ.get("SPOTIFYPOD_INSTALL_ENV", "/etc/spotifypod/install.env"),
+)
+for _env_file in _ENV_FILES:
+    if not os.path.isfile(_env_file):
+        continue
+    with open(_env_file) as fh:
         for line in fh:
             line = line.strip()
             if not line or line.startswith("#") or "=" not in line:
                 continue
             key, _, val = line.partition("=")
             os.environ.setdefault(key.strip(), val.strip().strip("'\""))
+
+# After the env files: these read MPD_HOST / MPD_PORT / LOCAL_MUSIC at import.
+import audio_router  # noqa: E402
+import local_player  # noqa: E402
 
 
 class UserTrack:
@@ -543,6 +553,7 @@ def _refresh_data_locked(full: bool):
 
 
 def play_artist(artist_uri, device_id=None):
+    audio_router.use_spotify()
     try:
         player.play(artist_uri)
     except player.PlayerError as exc:
@@ -551,6 +562,7 @@ def play_artist(artist_uri, device_id=None):
 
 
 def play_track(track_uri, device_id=None):
+    audio_router.use_spotify()
     try:
         player.play(track_uri)
     except player.PlayerError as exc:
@@ -559,6 +571,7 @@ def play_track(track_uri, device_id=None):
 
 
 def play_episode(episode_uri, device_id=None):
+    audio_router.use_spotify()
     try:
         player.play(episode_uri)
     except player.PlayerError as exc:
@@ -566,8 +579,19 @@ def play_episode(episode_uri, device_id=None):
     refresh_now_playing()
 
 
+def play_local(uris, start=0):
+    """Music on iPod: queue `uris` (an album or list) and play uris[start]."""
+    audio_router.use_local()
+    try:
+        local_player.play(uris, start)
+    except player.PlayerError as exc:
+        print("play_local:", exc)
+    refresh_now_playing()
+
+
 def play_from_playlist(playist_uri, track_uri, device_id=None):
     print("playing ", playist_uri, track_uri)
+    audio_router.use_spotify()
     try:
         player.play(playist_uri, skip_to_uri=track_uri)
     except player.PlayerError as exc:
@@ -582,6 +606,7 @@ def play_from_playlist(playist_uri, track_uri, device_id=None):
 
 def play_from_show(show_uri, episode_uri, device_id=None):
     print("playing ", show_uri, episode_uri)
+    audio_router.use_spotify()
     try:
         player.play(show_uri, skip_to_uri=episode_uri)
     except player.PlayerError as exc:
@@ -692,12 +717,19 @@ def _status_to_now_playing(st: dict) -> Optional[dict]:
 
 
 def get_now_playing():
+    """Now playing of the active source (Spotify or Music on iPod)."""
+    global has_internet
     st = player.status()
     if st:
-        global has_internet
         has_internet = True
-        return _status_to_now_playing(st)
-    return None
+    spotify_np = _status_to_now_playing(st) if st else None
+    local_st = local_player.status()
+    source = audio_router.reconcile(
+        bool(spotify_np and spotify_np["is_playing"]), local_player.is_playing(local_st)
+    )
+    if source == audio_router.LOCAL:
+        return local_player.to_now_playing(local_st)
+    return spotify_np
 
 
 def search(query):
@@ -763,7 +795,7 @@ def _current_volume() -> tuple[int, int]:
     now_playing = DATASTORE.now_playing or {}
     if now_playing.get("volume") is not None:
         return int(now_playing["volume"]), int(now_playing.get("volume_steps") or DEFAULT_VOLUME_STEPS)
-    vol = player.get_volume()
+    vol = audio_router.backend().get_volume()
     if vol and vol.get("max"):
         return int(vol.get("value") or 0), int(vol["max"])
     return DEFAULT_VOLUME_STEPS // 2, DEFAULT_VOLUME_STEPS
@@ -781,7 +813,7 @@ def _volume_sender_loop():
             target = _volume_target
             send_at = _volume_send_at
         try:
-            player.volume(target)
+            audio_router.backend().volume(target)
         except player.PlayerError as exc:
             print("volume:", exc)
         with _volume_lock:
@@ -812,10 +844,11 @@ def adjust_volume(direction: int) -> None:
             _volume_sender.start()
 
 
+# Transport buttons act on the active source (audio_router.backend()).
 def play_next():
     global sleep_time
     try:
-        player.next_track()
+        audio_router.backend().next_track()
     except player.PlayerError as exc:
         print(exc)
     sleep_time = 0.4
@@ -825,7 +858,7 @@ def play_next():
 def play_previous():
     global sleep_time
     try:
-        player.previous_track()
+        audio_router.backend().previous_track()
     except player.PlayerError as exc:
         print(exc)
     sleep_time = 0.4
@@ -835,7 +868,7 @@ def play_previous():
 def pause():
     global sleep_time
     try:
-        player.pause()
+        audio_router.backend().pause()
     except player.PlayerError as exc:
         print(exc)
     sleep_time = 0.4
@@ -845,7 +878,7 @@ def pause():
 def resume():
     global sleep_time
     try:
-        player.resume()
+        audio_router.backend().resume()
     except player.PlayerError as exc:
         print(exc)
     sleep_time = 0.4
@@ -853,9 +886,10 @@ def resume():
 
 
 def toggle_play():
+    global sleep_time
     now_playing = DATASTORE.now_playing
     try:
-        player.playpause()
+        audio_router.backend().playpause()
     except player.PlayerError:
         if not now_playing:
             return

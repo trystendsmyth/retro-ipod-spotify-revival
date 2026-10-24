@@ -23,6 +23,14 @@ quicker. Keep the SSH session open until it prints `Install complete.` What it d
   `vc4.tv_norm=...`, as described in the Raspberry Pi config.txt documentation);
 * creates a `spotifypod` service user and four systemd services: `click`,
   `go-librespot`, `spotifypod` (UI) and `spotifypod-portal` (setup page);
+* installs MPD for your own music files as a fifth service, `spotifypod-mpd`, with the
+  music folder `/srv/music` ([chapter 9b](09b-own-music.md); `LOCAL_MUSIC=0` skips it);
+* installs [comitup](https://davesteele.github.io/comitup/) for the setup hotspot from
+  comitup's own apt repository. The Bookworm package crashes with Bookworm's
+  python3-networkmanager
+  ([comitup #234](https://github.com/davesteele/comitup/issues/234)), and comitup's
+  repository carries the fixed versions for Bookworm and Trixie. `COMITUP_SOURCE=debian`
+  uses the distribution's package instead;
 * sets the hostname to `ipod`.
 
 ## Configure
@@ -37,6 +45,9 @@ Set the two values from chapter 2:
 SPOTIPY_CLIENT_ID=<your client id>
 SPOTIPY_REDIRECT_URI=<the redirect URI you registered, exactly>
 ```
+
+The file already contains the hosted relay address (option A), so with option A you only
+need to fill in the Client ID.
 
 Reboot: `sudo reboot`.
 
@@ -56,12 +67,12 @@ chapter 6, the iPod shows the same steps.)
 ## Check the services
 
 ```bash
-systemctl status click go-librespot spotifypod spotifypod-portal --no-pager
+systemctl status click go-librespot spotifypod spotifypod-portal spotifypod-mpd --no-pager
 journalctl -u go-librespot -b --no-pager | tail -20
 ```
 
-**Check:** all four are `active (running)` and the phone's Spotify app lists **iPod** as a
-device. (Audio output is chosen later on the setup page - chapter 9.)
+**Check:** all five are `active (running)` (four with `LOCAL_MUSIC=0`) and the phone's
+Spotify app lists **iPod** as a device. (Audio output is chosen later on the setup page - chapter 9.)
 
 ## Optional: preview the UI on your computer
 

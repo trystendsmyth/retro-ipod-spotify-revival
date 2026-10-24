@@ -26,17 +26,19 @@ From [Spotify's migration guide](https://developer.spotify.com/documentation/web
 2. Name and description: anything ("sPot Revival").
 3. **Redirect URI** - choose one option and add it exactly:
 
-   **Option A (recommended): GitHub Pages relay.** On GitHub open *your* copy of this
-   repository, **Settings -> Pages -> Deploy from a branch -> `main` / `/docs`**, save, and
-   wait for the site to publish. Then use:
+   **Option A (recommended): the hosted login relay.** This project's GitHub Pages site
+   hosts the relay page, so there is nothing to set up. Use:
 
    ```
    https://trystendsmyth.github.io/retro-ipod-spotify-revival/spotify-callback.html
    ```
 
-   (If you forked under another name, change the URL to match.) After you approve
-   access on your phone, this page forwards the login back to the iPod automatically. It
-   only forwards to `*.local` names or private network addresses.
+   After you approve access on your phone, this page forwards the login back to the iPod
+   automatically. It only forwards to `*.local` names or private network addresses.
+
+   To host the relay yourself instead, fork this repository, open **Settings -> Pages ->
+   Deploy from a branch -> `main` / `/docs`** on your fork, wait for the site to publish,
+   and use `https://<your-github-user>.github.io/<repo-name>/spotify-callback.html`.
 
    **Option B: no GitHub Pages.** Spotify accepts plain `http` only for loopback addresses:
 

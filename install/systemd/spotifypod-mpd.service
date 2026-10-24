@@ -1,0 +1,21 @@
+[Unit]
+Description=MPD for music files on the SD card (Music on iPod, 127.0.0.1 only)
+Documentation=man:mpd(1) man:mpd.conf(5)
+After=network.target sound.target user@__UID__.service
+Wants=user@__UID__.service
+
+[Service]
+# Type and flags as in Debian's mpd.service (MPD 0.23 and 0.24)
+Type=notify
+User=spotifypod
+Group=spotifypod
+Environment=HOME=/var/lib/spotifypod
+# PipeWire / pipewire-pulse for this user run in user@__UID__.service, as for go-librespot
+Environment=XDG_RUNTIME_DIR=/run/user/__UID__
+ExecStart=/usr/bin/mpd --systemd /var/lib/spotifypod/mpd/mpd.conf
+Restart=on-failure
+RestartSec=3
+SupplementaryGroups=audio
+
+[Install]
+WantedBy=multi-user.target

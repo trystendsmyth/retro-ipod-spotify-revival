@@ -5,8 +5,9 @@
 #
 # Derived from oliver-vv/Spotify-iPod-Classic (Apache-2.0). retro-ipod-spotify-revival adds:
 # DISPLAY_PROFILE=composite (original sPot Adafruit #911 TV display, default),
-# ARMv6 support, a pinned + checksummed go-librespot download, and pin defines
-# passed to the compiler instead of editing click.c. See NOTICE.
+# ARMv6 support, a pinned + checksummed go-librespot download, pin defines
+# passed to the compiler instead of editing click.c, MPD for music files on the SD
+# card (LOCAL_MUSIC) and comitup from its own repo (COMITUP_SOURCE). See NOTICE.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -46,6 +47,19 @@ GO_LIBRESPOT_VERSION="${GO_LIBRESPOT_VERSION:-v0.10.4}"
 GO_LIBRESPOT_SHA256_arm64="${GO_LIBRESPOT_SHA256_arm64:-d8b3d39e107ee140a8ad82924ef3decded4bfcbaceec680dd8142beda2403693}"
 GO_LIBRESPOT_SHA256_armv6_rpi="${GO_LIBRESPOT_SHA256_armv6_rpi:-941645d28c256b152dd6169ddf5df439fa6ae973833255b530b0fcaab0577110}"
 HOSTNAME_VALUE="${HOSTNAME_VALUE:-ipod}"
+# comitup source: upstream (comitup's own apt repo) or debian (distribution package).
+COMITUP_SOURCE="${COMITUP_SOURCE:-upstream}"
+COMITUP_APT_SOURCE_URL="https://davesteele.github.io/comitup/deb/davesteele-comitup-apt-source_1.3_all.deb"
+COMITUP_APT_SOURCE_SHA256="6620d256af8d21b05782d77039150351785d596b0f3faee7154245d76dd19114"
+# Music files on the SD card, played by MPD ("Music on iPod"). LOCAL_MUSIC=0 turns it off.
+LOCAL_MUSIC="${LOCAL_MUSIC:-1}"
+MUSIC_DIR="${MUSIC_DIR:-/srv/music}"
+MPD_PORT="${MPD_PORT:-6600}"
+# Login account that copies music in (owns MUSIC_DIR): the user who ran sudo, else uid 1000.
+MUSIC_USER="${MUSIC_USER:-${SUDO_USER:-}}"
+if [[ -z "${MUSIC_USER}" || "${MUSIC_USER}" == "root" ]]; then
+  MUSIC_USER="$(getent passwd 1000 | cut -d: -f1 || true)"
+fi
 
 if [[ "$(id -u)" -ne 0 ]]; then
   echo "Run as root: sudo bash $0" >&2
@@ -55,6 +69,14 @@ fi
 case "${DISPLAY_PROFILE}" in
   composite|st7789) ;;
   *) echo "ERROR: DISPLAY_PROFILE must be 'composite' or 'st7789' (got '${DISPLAY_PROFILE}')" >&2; exit 1 ;;
+esac
+case "${LOCAL_MUSIC}" in
+  0|1) ;;
+  *) echo "ERROR: LOCAL_MUSIC must be 0 or 1 (got '${LOCAL_MUSIC}')" >&2; exit 1 ;;
+esac
+case "${COMITUP_SOURCE}" in
+  upstream|debian) ;;
+  *) echo "ERROR: COMITUP_SOURCE must be 'upstream' or 'debian' (got '${COMITUP_SOURCE}')" >&2; exit 1 ;;
 esac
 
 EFFECTIVE_DATA_PIN="${CLICK_DATA_PIN}"
@@ -122,9 +144,26 @@ if ! apt-get install -y libpigpio-dev 2>/dev/null; then
   fi
 fi
 
-# Comitup may need its own repo on Bookworm; try apt first.
-if ! apt-get install -y comitup 2>/dev/null; then
-  echo "WARN: comitup not in default apt; see https://davesteele.github.io/comitup/ for Bookworm install"
+# Comitup (Wi-Fi setup hotspot). Debian/Raspbian ship it for armhf and arm64, but
+# Bookworm's 1.38 crashes on start with Bookworm's python3-networkmanager 2.2-2
+# (comitup issues #234, #267) and Trixie's 1.43 lacks the fix for #270. comitup's own
+# apt repo carries 1.47.1 and python3-networkmanager 2.2-3 for both releases.
+# COMITUP_SOURCE=upstream (default) adds that repo via its apt-source package, pinned
+# by SHA256; COMITUP_SOURCE=debian uses the distribution package only.
+if [[ "${COMITUP_SOURCE}" == "upstream" ]]; then
+  echo "==> comitup apt source (${COMITUP_APT_SOURCE_URL})"
+  CT_TMP="$(mktemp -d)"
+  curl -fsSL -o "${CT_TMP}/comitup-apt-source.deb" "${COMITUP_APT_SOURCE_URL}"
+  if echo "${COMITUP_APT_SOURCE_SHA256}  ${CT_TMP}/comitup-apt-source.deb" | sha256sum -c -; then
+    dpkg -i "${CT_TMP}/comitup-apt-source.deb"
+    apt-get update
+  else
+    echo "WARN: comitup apt-source checksum mismatch; falling back to the distribution package" >&2
+  fi
+  rm -rf "${CT_TMP}"
+fi
+if ! apt-get install -y comitup; then
+  echo "WARN: comitup could not be installed; no setup hotspot. Configure Wi-Fi in Raspberry Pi Imager." >&2
 fi
 
 echo "==> Creating user ${SPOTIFYPOD_USER}"
@@ -207,6 +246,45 @@ sed -e "s/__AUDIO_BACKEND__/${AUDIO_BACKEND}/g" \
   > "${DATA_DIR}/go-librespot/config.yml"
 chown -R "${SPOTIFYPOD_USER}:${SPOTIFYPOD_USER}" "${DATA_DIR}/go-librespot"
 
+echo "==> Music on iPod (LOCAL_MUSIC=${LOCAL_MUSIC})"
+MPD_DIR="${DATA_DIR}/mpd"
+if [[ "${LOCAL_MUSIC}" == "1" ]]; then
+  apt-get install -y --no-install-recommends mpd
+  # Our own instance (spotifypod-mpd.service) replaces the package's system one, which
+  # would run as user mpd from /etc/mpd.conf and hold port 6600.
+  systemctl disable --now mpd.service mpd.socket 2>/dev/null || true
+  # Login user owns the folder (rsync/scp); setgid keeps new files readable by the group.
+  mkdir -p "${MUSIC_DIR}" "${MPD_DIR}"
+  chown "${MUSIC_USER:-root}:${SPOTIFYPOD_USER}" "${MUSIC_DIR}"
+  chmod 2775 "${MUSIC_DIR}"
+  sed -e "s|__MUSIC_DIR__|${MUSIC_DIR}|g" -e "s|__MPD_DIR__|${MPD_DIR}|g" -e "s|__MPD_PORT__|${MPD_PORT}|g" \
+    "${SCRIPT_DIR}/config/mpd.conf.template" > "${MPD_DIR}/mpd.conf"
+  # Same output as go-librespot; software mixer so wheel volume works like Spotify's.
+  if [[ "${AUDIO_BACKEND}" == "pulseaudio" ]]; then
+    cat >> "${MPD_DIR}/mpd.conf" <<EOF
+audio_output {
+    type        "pulse"
+    name        "iPod"
+    server      "unix:${PULSE_SOCKET}"
+    mixer_type  "software"
+}
+EOF
+  else
+    cat >> "${MPD_DIR}/mpd.conf" <<EOF
+audio_output {
+    type        "alsa"
+    name        "iPod"
+    device      "default"
+    mixer_type  "software"
+}
+EOF
+  fi
+  chown -R "${SPOTIFYPOD_USER}:${SPOTIFYPOD_USER}" "${MPD_DIR}"
+else
+  systemctl disable --now spotifypod-mpd.service 2>/dev/null || true
+  rm -f /etc/systemd/system/spotifypod-mpd.service
+fi
+
 if [[ "${DISPLAY_PROFILE}" == "st7789" ]]; then
   echo "==> Display panel.bin (ST7789V)"
   PANEL_TXT="${SCRIPT_DIR}/config/panel.txt"
@@ -236,6 +314,27 @@ if [[ ! -f "${CONFIG_DIR}/config.env" ]]; then
 fi
 chown root:"${SPOTIFYPOD_USER}" "${CONFIG_DIR}/config.env"
 chmod 640 "${CONFIG_DIR}/config.env"
+
+echo "==> ${CONFIG_DIR}/install.env (Settings -> About, Music on iPod)"
+# The repo usually belongs to the login user; root's git refuses it without safe.directory.
+SPOTIFYPOD_VERSION="$(git -c safe.directory="${REPO_ROOT}" -C "${REPO_ROOT}" describe --tags --always --dirty 2>/dev/null || echo unknown)"
+MPD_VERSION=""
+if [[ "${LOCAL_MUSIC}" == "1" ]]; then
+  MPD_VERSION="$(dpkg-query -W -f='${Version}' mpd 2>/dev/null || true)"
+fi
+cat > "${CONFIG_DIR}/install.env" <<EOF
+# Written by install/install.sh on every run; edits here are overwritten. Use config.env.
+SPOTIFYPOD_VERSION=${SPOTIFYPOD_VERSION}
+DISPLAY_PROFILE=${DISPLAY_PROFILE}
+TV_NORM=${TV_NORM}
+AUDIO_BACKEND=${AUDIO_BACKEND}
+GO_LIBRESPOT_VERSION=${GO_LIBRESPOT_VERSION}
+LOCAL_MUSIC=${LOCAL_MUSIC}
+MUSIC_DIR=${MUSIC_DIR}
+MPD_PORT=${MPD_PORT}
+MPD_VERSION=${MPD_VERSION}
+EOF
+chmod 644 "${CONFIG_DIR}/install.env"
 
 echo "==> Comitup"
 if [[ -d /etc/comitup.conf ]] || [[ -f /etc/comitup.conf ]]; then
@@ -303,11 +402,19 @@ install -m 644 "${SCRIPT_DIR}/systemd/spotifypod.service" /etc/systemd/system/sp
 sed "s/__UID__/${SPOTIFYPOD_UID}/g" "${SCRIPT_DIR}/systemd/spotifypod-portal.service" \
   > /etc/systemd/system/spotifypod-portal.service
 chmod 644 /etc/systemd/system/spotifypod-portal.service
+if [[ "${LOCAL_MUSIC}" == "1" ]]; then
+  sed "s/__UID__/${SPOTIFYPOD_UID}/g" "${SCRIPT_DIR}/systemd/spotifypod-mpd.service" \
+    > /etc/systemd/system/spotifypod-mpd.service
+  chmod 644 /etc/systemd/system/spotifypod-mpd.service
+fi
 systemctl daemon-reload
 # Note: no pigpiod. click.c links libpigpio directly and owns the GPIO hardware
 # itself; a running daemon would fight it for the DMA/PCM peripherals.
 systemctl disable --now pigpiod 2>/dev/null || true
 systemctl enable click.service go-librespot.service spotifypod.service spotifypod-portal.service
+if [[ "${LOCAL_MUSIC}" == "1" ]]; then
+  systemctl enable spotifypod-mpd.service
+fi
 # Bluetooth speakers: adapter on at boot, radio unblocked
 systemctl enable bluetooth.service 2>/dev/null || true
 rfkill unblock bluetooth 2>/dev/null || true
@@ -334,8 +441,11 @@ systemctl disable getty@tty1.service 2>/dev/null || true
 echo ""
 echo "Install complete."
 echo "  1. Edit ${CONFIG_DIR}/config.env (Spotify Client ID + redirect URI)"
-echo "  2. Enable GitHub Pages for docs/spotify-callback.html and register that HTTPS URI"
+echo "  2. Register the same redirect URI in the Spotify dashboard (docs/guide/02-spotify-app.md)"
 echo "  3. Display profile: ${DISPLAY_PROFILE}; click wheel clock=${CLICK_CLOCK_PIN} data=${EFFECTIVE_DATA_PIN} haptic=${CLICK_HAPTIC_PIN}"
 echo "  4. Reboot. First boot: join iPod hotspot QR / comitup, then Spotify Connect to 'iPod',"
 echo "     then open http://ipod.local to link the Web API library."
 echo "  AUDIO_BACKEND=${AUDIO_BACKEND}"
+if [[ "${LOCAL_MUSIC}" == "1" ]]; then
+  echo "  Music on iPod: copy files to ${MUSIC_DIR}, then Settings -> Update Music Library"
+fi

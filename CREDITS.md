@@ -18,6 +18,17 @@ sPot Revival only exists because these people published their work.
 | **joan2937** | pigpio | [GitHub](https://github.com/joan2937/pigpio) |
 | **Spotipy** maintainers | Spotify Web API client | [GitHub](https://github.com/spotipy-dev/spotipy) |
 
+## Third-party software the installer sets up
+
+These are installed from their own packages (apt or pip) and aren't copied into this
+repository.
+
+| Software | Licence | Used for | Link |
+|---|---|---|---|
+| MPD (Music Player Daemon), The Music Player Daemon Project | GPL-2.0-or-later (`GPLv2+` in its build file) | Music on iPod playback (`spotifypod-mpd.service`) | [musicpd.org](https://www.musicpd.org/), [GitHub](https://github.com/MusicPlayerDaemon/MPD) |
+| python-mpd2, Jörg Thalheim and contributors | LGPL-3.0 | MPD client in `frontend/local_player.py` | [GitHub](https://github.com/Mic92/python-mpd2) |
+| comitup, David Steele | GPL-2.0 | Wi-Fi setup hotspot; installed from comitup's apt repository | [Homepage](https://davesteele.github.io/comitup/), [GitHub](https://github.com/davesteele/comitup) |
+
 ## Reference material
 
 | Source | Used for |
@@ -33,3 +44,5 @@ sPot Revival only exists because these people published their work.
 | [Adafruit #1905 Mini LiPo charger](https://www.adafruit.com/product/1905) | 100 mA default, 500 mA jumper |
 | [Spotify Web API: February 2026 migration guide](https://developer.spotify.com/documentation/web-api/tutorials/february-2026-migration-guide) | Development Mode limits and removed endpoints |
 | go-librespot `CROSS_COMPILE.md` | `armv6_rpi` build is for Pi 1 / Zero |
+| [MPD user manual](https://mpd.readthedocs.io/en/stable/user.html) and Debian's `mpd.service` | `mpd.conf` settings, `--systemd` unit; checked against MPD 0.23.12 (Bookworm) and 0.24.4 (Trixie) |
+| comitup issues [#234](https://github.com/davesteele/comitup/issues/234), [#267](https://github.com/davesteele/comitup/issues/267), [#270](https://github.com/davesteele/comitup/issues/270) and its [apt repository page](https://davesteele.github.io/comitup/ppa.html) | why the installer uses comitup's own repository |
