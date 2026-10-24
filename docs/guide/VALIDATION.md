@@ -26,6 +26,7 @@ next to each result.
 | 12 | comitup install: which version did the installer get (`dpkg -l comitup python3-networkmanager`)? Does `COMITUP_SOURCE=debian` also work on this release? | [ ] | [ ] | |
 | 13 | Music on iPod: files copied with `rsync` appear after Settings -> Update Music; MP3, FLAC, M4A play | [ ] | [ ] | |
 | 14 | Music on iPod: CPU load while MPD plays a FLAC file over Bluetooth | [ ] | [ ] | |
-| 15 | Source switching: starting local music pauses Spotify, and vice versa; a phone pressing play via Connect pauses local music | [ ] | [ ] | |
-| 16 | `AUDIO_BACKEND=alsa` with a DAC: can go-librespot and MPD take turns on the device, or does one report "device busy"? | [ ] | [ ] | |
-| 17 | Settings -> About shows the right version, IP address, display profile and backend versions | [ ] | [ ] | |
+| 15 | Large library (~3,000 songs): seconds to open **Songs**, and from selecting a song to sound. If slow: load lists off the UI thread and queue a window around the chosen song | [ ] | [ ] | |
+| 16 | Source switching: starting local music pauses Spotify, and vice versa; a phone pressing play via Connect pauses local music | [ ] | [ ] | |
+| 17 | `AUDIO_BACKEND=alsa` with a DAC: can go-librespot and MPD take turns on the device, or does one report "device busy"? | [ ] | [ ] | |
+| 18 | Settings -> About shows the right version, IP address, display profile and backend versions | [ ] | [ ] | |

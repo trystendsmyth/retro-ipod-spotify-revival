@@ -12,7 +12,7 @@ bind_to_address     "127.0.0.1"
 port                "__MPD_PORT__"
 zeroconf_enabled    "no"
 
-# The library is rescanned from Settings -> Update Music Library, not by watching the folder.
+# The library is rescanned from Settings -> Update Music, not by watching the folder.
 auto_update         "no"
 restore_paused      "yes"
 

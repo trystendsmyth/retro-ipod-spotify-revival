@@ -88,7 +88,7 @@ def main() -> None:
     local_player.status = lambda: None
     local_player.library_ready = lambda: True
     local_player.artists = lambda: sorted({s["artist"] for s in local_songs})
-    local_player.albums = lambda artist=None: sorted({s["album"] for s in local_songs
+    local_player.albums = lambda artist=None: sorted({(s["album"], s["artist"]) for s in local_songs
                                                      if artist in (None, s["artist"])})
     local_player.tracks = lambda album, artist=None: [s for s in local_songs if s["album"] == album]
     local_player.songs = lambda: sorted(local_songs, key=lambda s: s["title"])

@@ -29,8 +29,9 @@ quicker. Keep the SSH session open until it prints `Install complete.` What it d
   comitup's own apt repository. The Bookworm package crashes with Bookworm's
   python3-networkmanager
   ([comitup #234](https://github.com/davesteele/comitup/issues/234)), and comitup's
-  repository carries the fixed versions for Bookworm and Trixie. `COMITUP_SOURCE=debian`
-  uses the distribution's package instead;
+  repository carries the fixed versions for Bookworm and Trixie. This adds that repository
+  as a trusted package source. `COMITUP_SOURCE=debian` uses the distribution's package
+  instead, and on a re-run removes the repository again;
 * sets the hostname to `ipod`.
 
 ## Configure

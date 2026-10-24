@@ -14,7 +14,7 @@ def library(monkeypatch):
     monkeypatch.delenv("LOCAL_MUSIC", raising=False)
     monkeypatch.setattr(local_player, "library_ready", lambda: True)
     monkeypatch.setattr(local_player, "artists", lambda: ["A"])
-    monkeypatch.setattr(local_player, "albums", lambda artist=None: ["Album"])
+    monkeypatch.setattr(local_player, "albums", lambda artist=None: [("Album", "A")])
     monkeypatch.setattr(local_player, "tracks", lambda album, artist=None: SONGS)
     played = []
     monkeypatch.setattr(sm, "play_local", lambda uris, start=0: played.append((uris, start)))

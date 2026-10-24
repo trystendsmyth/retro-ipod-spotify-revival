@@ -161,6 +161,12 @@ if [[ "${COMITUP_SOURCE}" == "upstream" ]]; then
     echo "WARN: comitup apt-source checksum mismatch; falling back to the distribution package" >&2
   fi
   rm -rf "${CT_TMP}"
+elif dpkg -s davesteele-comitup-apt-source >/dev/null 2>&1; then
+  # Switching to debian: drop the repo an earlier run added (an installed comitup stays,
+  # apt does not downgrade it).
+  echo "==> Removing comitup apt source (COMITUP_SOURCE=debian)"
+  apt-get purge -y davesteele-comitup-apt-source
+  apt-get update
 fi
 if ! apt-get install -y comitup; then
   echo "WARN: comitup could not be installed; no setup hotspot. Configure Wi-Fi in Raspberry Pi Imager." >&2
@@ -447,5 +453,5 @@ echo "  4. Reboot. First boot: join iPod hotspot QR / comitup, then Spotify Conn
 echo "     then open http://ipod.local to link the Web API library."
 echo "  AUDIO_BACKEND=${AUDIO_BACKEND}"
 if [[ "${LOCAL_MUSIC}" == "1" ]]; then
-  echo "  Music on iPod: copy files to ${MUSIC_DIR}, then Settings -> Update Music Library"
+  echo "  Music on iPod: copy files to ${MUSIC_DIR}, then Settings -> Update Music"
 fi

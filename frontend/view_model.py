@@ -659,9 +659,9 @@ class LocalAlbumsPage(LocalListPage):
         return local_player.albums(self.artist)
 
     def page_at(self, index):
-        album = self.items()[index]
+        album, album_artist = self.items()[index]
         return LocalTracksPage(album, self,
-                               lambda: local_player.tracks(album, self.artist))
+                               lambda: local_player.tracks(album, album_artist or None))
 
 class LocalArtistsPage(LocalListPage):
     def __init__(self, previous_page):

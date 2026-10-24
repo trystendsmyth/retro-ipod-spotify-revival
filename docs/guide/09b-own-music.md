@@ -27,14 +27,23 @@ MPD handles the common formats, including MP3, FLAC, Ogg Vorbis and AAC/M4A (see
 The music folder is `/srv/music`. It belongs to the account you created in Raspberry Pi
 Imager (chapter 3), so you can copy into it over SSH from your computer. Keep one folder
 per artist or album. MPD reads the artist, album, title and track number from the files'
-tags.
+tags. Menus group by **album artist** (falling back to artist), so give compilations an
+album artist such as "Various Artists" to keep them together as one album.
 
 ```bash
 # macOS / Linux: copy one album (the trailing slashes matter)
-rsync -av ~/Music/Album/ <user>@ipod.local:/srv/music/Album/
+rsync -av --chmod=a+rX ~/Music/Album/ <user>@ipod.local:/srv/music/Album/
+```
 
-# or with scp
+`--chmod=a+rX` makes the copies readable by MPD. Without it, rsync keeps your computer's
+permissions, and files that only you can read there silently never show up on the iPod.
+(This form also works with the older rsync that ships with macOS.)
+
+With `scp`, which also keeps your computer's permissions, fix them after copying:
+
+```bash
 scp -r ~/Music/Album <user>@ipod.local:/srv/music/
+ssh <user>@ipod.local chmod -R a+rX /srv/music
 ```
 
 Then on the iPod open **Settings -> Update Music** and press the centre button. When it shows

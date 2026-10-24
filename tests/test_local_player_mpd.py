@@ -42,6 +42,15 @@ def mpd_server(tmp_path_factory):
         write_mp3(album / f"0{i + 1} {title}.mp3", title=title, artist="Hold Switch",
                   album="Monochrome", track=f"{i + 1}/3", frames=400)
     write_mp3(music / "loose.mp3")
+    # A compilation (one album artist, several artists) and two albums with the same name
+    (music / "Now").mkdir()
+    write_mp3(music / "Now" / "1.mp3", title="One", artist="Alice", album="Now 2004",
+              albumartist="Various Artists", track="1")
+    write_mp3(music / "Now" / "2.mp3", title="Two", artist="Bob", album="Now 2004",
+              albumartist="Various Artists", track="2")
+    (music / "Hits").mkdir()
+    write_mp3(music / "Hits" / "a.mp3", title="Hit A", artist="Alice", album="Greatest Hits")
+    write_mp3(music / "Hits" / "c.mp3", title="Hit C", artist="Carol", album="Greatest Hits")
     (music / "Mix.m3u").write_text("#EXTM3U\nHold Switch/Monochrome/03 White.mp3\nmissing.mp3\nloose.mp3\n")
 
     port = _free_port()
@@ -58,11 +67,8 @@ def mpd_server(tmp_path_factory):
             return s.connect_ex(("127.0.0.1", port)) == 0
 
     assert _wait(up), "mpd did not start"
-    old = lp.PORT, lp.client_factory
-    lp.PORT, lp._client = port, None
-    yield proc
+    yield port
     lp._drop()
-    lp.PORT, lp.client_factory = old
     proc.terminate()
     proc.wait(timeout=10)
 
@@ -70,16 +76,28 @@ def mpd_server(tmp_path_factory):
 @pytest.fixture
 def library(mpd_server, monkeypatch):
     monkeypatch.delenv("LOCAL_MUSIC", raising=False)
+    monkeypatch.setenv("MPD_PORT", str(mpd_server))  # read on use, like on the Pi
+    lp._drop()
     lp.update_db()
-    assert _wait(lambda: not lp.updating() and lp.song_count() == 4)
+    assert _wait(lambda: not lp.updating() and lp.song_count() == 8)
 
 
 def test_files_appear_after_update(library):
     assert lp.library_ready()
-    assert lp.artists() == ["Hold Switch"]
-    assert lp.albums("Hold Switch") == ["Monochrome"]
+    assert lp.albums("Hold Switch") == [("Monochrome", "Hold Switch")]
     assert [lp.title_of(s) for s in lp.tracks("Monochrome")] == ["Grey", "Black", "White"]
-    assert [lp.title_of(s) for s in lp.songs()] == ["Black", "Grey", "loose", "White"]
+    assert [lp.title_of(s) for s in lp.songs()][:4] == ["Black", "Grey", "Hit A", "Hit C"]
+
+
+def test_grouped_by_album_artist(library):
+    # Compilation stays one album under its album artist; untagged files fall back to artist
+    assert lp.artists() == ["Alice", "Carol", "Hold Switch", "Various Artists"]
+    assert [lp.title_of(s) for s in lp.tracks("Now 2004", "Various Artists")] == ["One", "Two"]
+    # Two "Greatest Hits" stay separate
+    assert [a for a in lp.albums() if a[0] == "Greatest Hits"] == [
+        ("Greatest Hits", "Alice"), ("Greatest Hits", "Carol")]
+    assert [lp.title_of(s) for s in lp.tracks("Greatest Hits", "Carol")] == ["Hit C"]
+    assert lp.albums("Alice") == [("Greatest Hits", "Alice")]
 
 
 def test_playlist_in_music_folder_skips_missing_files(library):

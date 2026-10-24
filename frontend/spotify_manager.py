@@ -29,7 +29,8 @@ for _env_file in _ENV_FILES:
             key, _, val = line.partition("=")
             os.environ.setdefault(key.strip(), val.strip().strip("'\""))
 
-# After the env files: these read MPD_HOST / MPD_PORT / LOCAL_MUSIC at import.
+# local_player reads LOCAL_MUSIC / MPD_* when called, so loading order doesn't matter
+# for it. (player and datastore, imported above, read theirs at import time.)
 import audio_router  # noqa: E402
 import local_player  # noqa: E402
 

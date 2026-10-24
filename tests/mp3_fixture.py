@@ -15,8 +15,8 @@ def _text_frame(frame_id, text):
     return frame_id.encode() + struct.pack(">I", len(data)) + b"\x00\x00" + data
 
 
-def write_mp3(path, title=None, artist=None, album=None, track=None, frames=40):
-    tags = {"TIT2": title, "TPE1": artist, "TALB": album, "TRCK": track}
+def write_mp3(path, title=None, artist=None, album=None, track=None, albumartist=None, frames=40):
+    tags = {"TIT2": title, "TPE1": artist, "TALB": album, "TRCK": track, "TPE2": albumartist}
     body = b"".join(_text_frame(k, str(v)) for k, v in tags.items() if v is not None)
     with open(path, "wb") as fh:
         if body:

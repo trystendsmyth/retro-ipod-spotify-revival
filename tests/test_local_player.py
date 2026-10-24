@@ -23,6 +23,13 @@ DB = [
 ]
 
 
+def _tag(song, tag):
+    # Like MPD: albumartist falls back to artist
+    if tag == "albumartist":
+        return song.get("albumartist") or song.get("artist", "")
+    return song.get(tag, "")
+
+
 class FakeServer:
     def __init__(self):
         self.down = False
@@ -116,15 +123,17 @@ class FakeMPD:
     def stats(self):
         return {"songs": str(len(DB))}
 
-    def list(self, tag, *filt):
-        rows = DB
-        if filt:
-            rows = [s for s in DB if s.get(filt[0]) == filt[1]]
-        return [{tag: v} for v in {s.get(tag, "") for s in rows}]
+    def list(self, tag, *args):
+        group = None
+        if len(args) >= 2 and args[-2] == "group":
+            group, args = args[-1], args[:-2]
+        rows = [s for s in DB if not args or _tag(s, args[0]) == args[1]]
+        found = {(_tag(s, tag), _tag(s, group) if group else None) for s in rows}
+        return [dict({tag: v}, **({group: g} if group else {})) for v, g in found]
 
     def find(self, *pairs):
         crit = dict(zip(pairs[::2], pairs[1::2]))
-        return [s for s in DB if all(s.get(k) == v for k, v in crit.items())]
+        return [s for s in DB if all(_tag(s, k) == v for k, v in crit.items())]
 
     def listallinfo(self):
         return [{"directory": "B"}] + DB
@@ -200,8 +209,8 @@ def test_volume_is_clamped_and_relative(server):
 
 def test_library_queries(server):
     assert lp.artists() == ["analog hearts", "Hold Switch"]          # empty tag dropped, case-insensitive
-    assert lp.albums() == ["Demo", "Monochrome"]
-    assert lp.albums("analog hearts") == ["Demo"]
+    assert lp.albums() == [("Demo", "analog hearts"), ("Monochrome", "Hold Switch")]
+    assert lp.albums("analog hearts") == [("Demo", "analog hearts")]
     assert [s["title"] for s in lp.tracks("Monochrome", "Hold Switch")] == ["Grey", "Black", "Bonus"]
     assert [lp.title_of(s) for s in lp.songs()] == ["Black", "Bonus", "Grey", "menu", "untagged"]
     assert lp.playlists() == ["commute", "Road Trip"]
