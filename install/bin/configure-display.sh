@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Write the display section of config.txt / cmdline.txt for spot-revival.
+# Write the display section of config.txt / cmdline.txt for retro-ipod-spotify-revival.
 # Called by install/install.sh; safe to re-run (it replaces its own block).
 #
 # Env:
@@ -40,12 +40,12 @@ fi
 
 if [[ -n "${BOOTCFG:-}" && -f "${BOOTCFG}" ]]; then
   # Remove blocks from earlier runs (ours, and the upstream oliver-vv installer's).
-  sed -i '/^# >>> spot-revival display/,/^# <<< spot-revival display/d' "${BOOTCFG}"
+  sed -i '/^# >>> retro-ipod-spotify-revival display/,/^# <<< retro-ipod-spotify-revival display/d' "${BOOTCFG}"
   sed -i '/^# --- \(iPod\|sPot\) \/ Spotifypod display/,/^enable_tvout=0/d' "${BOOTCFG}"
 
   {
     echo ""
-    echo "# >>> spot-revival display (${DISPLAY_PROFILE}) - managed by install/bin/configure-display.sh"
+    echo "# >>> retro-ipod-spotify-revival display (${DISPLAY_PROFILE}) - managed by install/bin/configure-display.sh"
     # Settings after a conditional section like [cm4] would only apply to that model.
     echo "[all]"
     if [[ "${DISPLAY_PROFILE}" == "st7789" ]]; then
@@ -55,12 +55,12 @@ if [[ -n "${BOOTCFG:-}" && -f "${BOOTCFG}" ]]; then
     else
       cat "${SNIPPET_DIR}/composite-config.txt.snippet"
     fi
-    echo "# <<< spot-revival display"
+    echo "# <<< retro-ipod-spotify-revival display"
   } > "${BOOTCFG}.spot-block"
 
   if [[ "${DISPLAY_PROFILE}" == "st7789" ]]; then
     # SPI panel is the only display: comment out the KMS driver line(s).
-    sed -i -E 's/^(dtoverlay=vc4-kms-v3d.*)$/# \1  # disabled by spot-revival for the SPI LCD/' "${BOOTCFG}"
+    sed -i -E 's/^(dtoverlay=vc4-kms-v3d.*)$/# \1  # disabled by retro-ipod-spotify-revival for the SPI LCD/' "${BOOTCFG}"
   else
     # Composite needs KMS with ",composite": drop other vc4-kms-v3d lines (including ones a
     # previous st7789 install commented out); our block adds the right one.

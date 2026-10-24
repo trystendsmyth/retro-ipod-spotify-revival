@@ -1,8 +1,9 @@
-# sPot Revival
+# Retro iPod Spotify Revival
 
-**Spotify in a 4th-generation iPod, rebuilt for 2026.** A Raspberry Pi Zero 2 W (or Zero W)
-inside an iPod "Click Wheel" (model A1059) case, driven by the original click wheel, with
-haptic feedback, Spotify Connect playback and your Spotify library on a tiny screen.
+**Spotify in a 4th-generation iPod, rebuilt for 2026.** A Raspberry Pi Zero W (or, as an
+alternative, a Zero 2 W) inside an iPod "Click Wheel" (model A1059) case, driven by the
+original click wheel, with haptic feedback, Spotify Connect playback and your Spotify
+library on a tiny screen.
 
 <p align="center">
   <img src="docs/images/ui/320x240-01-main-menu.png" width="240" alt="Main menu">
@@ -13,18 +14,18 @@ haptic feedback, Spotify Connect playback and your Spotify library on a tiny scr
 <code>tools/ui_preview.py</code> (not photos of hardware).</sub></p>
 
 This repository continues [Guy Dupont's sPot](https://hackaday.io/project/177034-spot-spotify-in-a-4th-gen-ipod-2004)
-(2021). The 2021 software no longer works as written: Raspotify dropped the Pi Zero W's
-ARMv6 CPU, Spotify removed password logins, and in 2026 Spotify restricted the Web API for
-personal ("Development Mode") apps. The software here is based on
-[oliver-vv/Spotify-iPod-Classic](https://github.com/oliver-vv/Spotify-iPod-Classic), which
-already solved those problems, and adds support for **the original sPot hardware**
-(Adafruit composite display) and the **Pi Zero W**, plus a complete build guide.
+(2021), using the same hardware. The 2021 software no longer works as written: Raspotify
+dropped the Pi Zero W's ARMv6 CPU, Spotify removed password logins, and in 2026 Spotify
+restricted the Web API for personal ("Development Mode") apps. The software here is based
+on [oliver-vv/Spotify-iPod-Classic](https://github.com/oliver-vv/Spotify-iPod-Classic),
+which solved those problems, and adds the original sPot display, Pi Zero W support
+(go-librespot's ARMv6 build, as in thehajime's fork) and a complete build guide.
 
 ## Start here
 
-**[Build guide](docs/guide/README.md)** - parts, Spotify setup, bench test on a Pi 3,
-wiring, power, assembly, first boot, troubleshooting. Written so someone who has never
-built one can follow it step by step.
+**[Build guide](docs/guide/README.md)** - parts, Spotify setup, software, click wheel,
+display, haptics, power, assembly, first boot, troubleshooting. Written so someone who has
+never built one can follow it step by step.
 
 **[Wiring diagrams](docs/wiring/README.md)** - schematics, harness diagram, pin tables,
 with the source for every connection.
@@ -39,15 +40,14 @@ click wheel --(GPIO, pigpio)--> clickwheel/click.c --UDP 127.0.0.1:9090--> front
 phone --> http://ipod.local (portal/: Spotify linking, Bluetooth pairing, power)
 ```
 
-## Supported hardware
+## Hardware
 
-| Part | Status |
+| Part | |
 |---|---|
-| Raspberry Pi Zero 2 W | Recommended. 64-bit Raspberry Pi OS Lite. |
-| Raspberry Pi Zero W / Zero | Supported via go-librespot's ARMv6 build; 32-bit OS; slower UI. |
-| Raspberry Pi 3 / 4 | Bench testing only (does not fit the case). Same 64-bit image as the Zero 2 W. |
-| Display: Adafruit #911 2" NTSC/PAL TFT (original sPot) | `DISPLAY_PROFILE=composite` (default). |
-| Display: Waveshare 2" ST7789V SPI (Ricardo Sappia's build) | `DISPLAY_PROFILE=st7789` (upstream oliver-vv path). |
+| **Raspberry Pi Zero W** | Primary target (the original sPot board). Raspberry Pi OS Lite **32-bit**; go-librespot `armv6_rpi` build. Single core: slower UI and install, lowest power draw. |
+| Raspberry Pi Zero 2 W | Alternative. Raspberry Pi OS Lite **64-bit**. Same footprint and header; much faster; draws more power; composite on underside test pads. |
+| Adafruit #911 2" NTSC/PAL TFT (original sPot display) | `DISPLAY_PROFILE=composite` (default). |
+| Waveshare 2" ST7789V SPI (Ricardo Sappia's build) | `DISPLAY_PROFILE=st7789` (upstream oliver-vv path, not covered by the guide). |
 | iPod 4th gen (A1059) click wheel, 8-pin FPC | Required. Other generations use different connectors. |
 
 ## Status - read this
@@ -56,10 +56,9 @@ phone --> http://ipod.local (portal/: Spotify linking, Bluetooth pairing, power)
   boot-config script is tested against fixture `config.txt`/`cmdline.txt` files; the
   Web API parsing is tested against Spotify's 2026 response shapes; the UI renders at
   320x240 and 720x480 (composite) with demo data.
-* **Not yet verified on hardware by this repository.** The hardware approach follows the
-  original sPot, and the software path follows oliver-vv's fork (built on a Zero 2 W with
-  an SPI panel) and thehajime's fork (go-librespot on a Zero W). If you build one, please
-  open an issue with what worked.
+* **Not yet verified on hardware by this repository.** The hardware follows the original
+  sPot; the software path follows oliver-vv's fork (Zero 2 W) and thehajime's fork
+  (go-librespot on a Zero W). If you build one, please open an issue with what worked.
 
 ## Credits
 

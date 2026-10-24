@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# spot-revival installer for Raspberry Pi OS Lite (Bookworm or newer).
-#   64-bit OS: Pi Zero 2 W, Pi 3, Pi 4      32-bit OS: Pi Zero W / Zero (ARMv6)
+# retro-ipod-spotify-revival installer for Raspberry Pi OS Lite (Bookworm or newer).
+#   32-bit OS: Pi Zero W / Zero (ARMv6)      64-bit OS: Pi Zero 2 W (also runs on Pi 3/4)
 # Run as root on the Pi:  sudo bash install/install.sh
 #
-# Derived from oliver-vv/Spotify-iPod-Classic (Apache-2.0). spot-revival adds:
+# Derived from oliver-vv/Spotify-iPod-Classic (Apache-2.0). retro-ipod-spotify-revival adds:
 # DISPLAY_PROFILE=composite (original sPot Adafruit #911 TV display, default),
 # ARMv6 support, a pinned + checksummed go-librespot download, and pin defines
 # passed to the compiler instead of editing click.c. See NOTICE.

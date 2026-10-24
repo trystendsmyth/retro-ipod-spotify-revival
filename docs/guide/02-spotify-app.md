@@ -31,10 +31,10 @@ From [Spotify's migration guide](https://developer.spotify.com/documentation/web
    wait for the site to publish. Then use:
 
    ```
-   https://trystendsmyth.github.io/spot-revival/spotify-callback.html
+   https://trystendsmyth.github.io/retro-ipod-spotify-revival/spotify-callback.html
    ```
 
-   (If your GitHub user or repo name differs, change the URL to match.) After you approve
+   (If you forked under another name, change the URL to match.) After you approve
    access on your phone, this page forwards the login back to the iPod automatically. It
    only forwards to `*.local` names or private network addresses.
 

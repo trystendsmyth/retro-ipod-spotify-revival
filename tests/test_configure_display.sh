@@ -18,7 +18,7 @@ grep -q ' vc4.tv_norm=NTSC$' "$T/cmdline.txt" || fail "tv_norm missing"
 
 # 2. idempotent re-run, switch to PAL
 DISPLAY_PROFILE=composite TV_NORM=PAL run
-[[ "$(grep -c 'spot-revival display (' "$T/config.txt")" == 1 ]] || fail "block duplicated"
+[[ "$(grep -c 'retro-ipod-spotify-revival display (' "$T/config.txt")" == 1 ]] || fail "block duplicated"
 [[ "$(grep -o 'vc4.tv_norm=' "$T/cmdline.txt" | wc -l)" == 1 ]] || fail "tv_norm duplicated"
 grep -q 'vc4.tv_norm=PAL' "$T/cmdline.txt" || fail "tv_norm not PAL"
 

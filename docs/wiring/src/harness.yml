@@ -1,4 +1,4 @@
-# spot-revival wiring harness (WireViz 0.4 format: https://github.com/wireviz/WireViz)
+# retro-ipod-spotify-revival wiring harness (WireViz 0.4 format: https://github.com/wireviz/WireViz)
 # Render:  pip install wireviz==0.4.1 && wireviz docs/wiring/src/harness.yml -o docs/wiring
 # Pin numbers on PI are physical header pins (BCM names in pinlabels).
 # Every connection here is also drawn as a schematic in docs/wiring/0*.svg and listed
@@ -6,10 +6,10 @@
 
 connectors:
   PI:
-    type: Raspberry Pi Zero 2 W / Zero W
-    subtype: 40-pin header + TV test pad
+    type: Raspberry Pi Zero W (or Zero 2 W)
+    subtype: 40-pin header holes + TV
     pins: [1, 2, 6, 16, 22, 37, 39, TV, TVGND]
-    pinlabels: [3V3, 5V, GND, GPIO23, GPIO25, GPIO26, GND, TV (composite), GND pad]
+    pinlabels: [3V3, 5V, GND, GPIO23, GPIO25, GPIO26, GND, TV (composite), TV GND]
   J1:
     type: Click wheel
     subtype: 8-pin 0.5 mm FPC breakout
@@ -49,7 +49,7 @@ cables:
     wirecount: 2
     colors: [YE, BK]
     gauge: 30 AWG
-    notes: solder to the TV / GND pads under the Zero 2 W
+    notes: Zero W - TV holes; Zero 2 W - TV / GND pads underneath
   W_DISP_PWR:
     wirecount: 2
     colors: [RD, BK]

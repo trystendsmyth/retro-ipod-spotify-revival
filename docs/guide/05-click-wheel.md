@@ -14,7 +14,7 @@ click wheel stays in the front shell; you only need its 8-pin, 0.5 mm flat ribbo
 From Jason Garr's reverse engineering, as used by sPot. Pin numbers are as printed on the
 click wheel's ribbon.
 
-| FPC pin | Function | Connect to Pi (physical pin / BCM) |
+| FPC pin | Function | Connect to Pi Zero (physical pin / BCM) |
 |---|---|---|
 | 1 | VCC (was battery voltage in the iPod) | pin **1** (3.3 V) |
 | 2 | CLOCK (from the wheel) | pin **16** / GPIO **23** |
@@ -28,15 +28,18 @@ click wheel's ribbon.
 7 unconnected; if your wheel produces nothing at all, tying 3 and 7 to 3.3 V (as on Garr's
 board) is the documented thing to try.
 
-## Wire it (bench)
+The Zero W and Zero 2 W have the same 40-pin layout, so this table is the same for both.
+
+## Wire it
 
 1. Slide the ribbon into the FPC breakout's connector, contacts facing the connector's
-   contacts, and close the latch. Identify pin 1 on the breakout and match it to pin 1 on
-   the ribbon.
-2. Jumper the four signals to the Pi 3's header as in the table. The Pi 3 header is
-   identical to the Zero's.
+   contacts, and close the latch. Match pin 1 on the breakout to pin 1 on the ribbon.
+2. Solder four 30 AWG wires from the breakout to the Zero's header holes as in the table.
+   Pin 1 of the header is the square pad. Leave the wires long for now.
 
 ## Test
+
+With the Pi powered from micro-USB:
 
 ```bash
 sudo systemctl stop spotifypod      # so you can watch raw events

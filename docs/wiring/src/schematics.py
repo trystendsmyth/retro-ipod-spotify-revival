@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the spot-revival schematics (SVG + PNG) with schemdraw.
+"""Generate the retro-ipod-spotify-revival schematics (SVG + PNG) with schemdraw.
 
     pip install schemdraw==0.23
     python3 docs/wiring/src/schematics.py        # writes docs/wiring/*.svg|png
@@ -19,7 +19,7 @@ OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 schemdraw.config(fontsize=11, lw=1.2)
 
 
-def pi_block(pins, label="Raspberry Pi Zero 2 W / Zero W", spacing=1.0):
+def pi_block(pins, label="Raspberry Pi Zero W (or Zero 2 W)", spacing=1.0):
     return elm.Ic(pins=pins, edgepadW=0.7, edgepadH=0.5, pinspacing=spacing,
                   leadlen=0.9, w=3.0).label(label, loc="top", fontsize=11)
 
@@ -101,8 +101,8 @@ with schemdraw.Drawing(show=False) as d:
 with schemdraw.Drawing(show=False) as d:
     d.config(unit=2.5)
     pi = d.add(pi_block([
-        elm.IcPin(name="TV pad", side="right", slot="4/4"),
-        elm.IcPin(name="GND pad", side="right", slot="3/4"),
+        elm.IcPin(name="TV", side="right", slot="4/4"),
+        elm.IcPin(name="GND", side="right", slot="3/4"),
     ]))
     disp = d.add(elm.Ic(pins=[
         elm.IcPin(name="4 VIDEO", side="left", slot="4/4"),
@@ -112,15 +112,16 @@ with schemdraw.Drawing(show=False) as d:
     ], edgepadW=0.7, edgepadH=0.5, pinspacing=1.0, leadlen=0.9, w=3.4)
         .label("U4  Adafruit #911 NTSC/PAL TFT driver", loc="top", fontsize=10)
         .at((pi.center[0] + 11, pi.center[1])).anchor("center"))
-    d += elm.Wire("-").at(pi["TV pad"]).to(disp["4 VIDEO"]).color("#d4ac0d").label("composite video", loc="top", fontsize=9)
-    d += elm.Wire("-").at(pi["GND pad"]).to(disp["3 GND"]).label("video ground", loc="bottom", fontsize=9)
+    d += elm.Wire("-").at(pi["TV"]).to(disp["4 VIDEO"]).color("#d4ac0d").label("composite video", loc="top", fontsize=9)
+    d += elm.Wire("-").at(pi["GND"]).to(disp["3 GND"]).label("video ground", loc="bottom", fontsize=9)
     d += elm.Line().at(disp["1 V+ (red)"]).left().length(1.4).color("#c0392b")
     d += elm.Dot(open=True).label("+5V", loc="left")
     d += elm.Line().at(disp["2 GND (black)"]).left().length(1.4)
     d += elm.Ground()
     d += elm.Label().at((pi.center[0] + 5.5, bottom(disp) - 1.4)).label(
-        "Zero 2 W: TV / GND test pads on the underside (official pad table: TV 45.58, 3.17 mm;\n"
-        "GND 49.38, 3.05 mm). Zero / Zero W: the 'TV' header holes. Pi 3 (bench): AV jack.\n"
+        "Zero W / Zero: the two holes marked TV (square = video, round = GND).\n"
+        "Zero 2 W: TV / GND test pads on the underside (Raspberry Pi pad table: TV 45.58, 3.17 mm;\n"
+        "GND 49.38, 3.05 mm).\n"
         "Adafruit specifies 6-12 V for the #911 (120 mA at 5 V listed); sPot ran it from 5 V.",
         fontsize=9)
     save(d, "03-composite-display")

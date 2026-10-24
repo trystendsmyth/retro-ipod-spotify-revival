@@ -26,6 +26,7 @@ sPot Revival only exists because these people published their work.
 | Hackaday.io sPot components list and details | parts list; power design (charger + PowerBoost, hold switch on EN) |
 | Guy Dupont's Hackaday comment (Nov 2022) | flyback diode across the haptic motor |
 | [Raspberry Pi documentation: Zero models, test pad locations](https://www.raspberrypi.com/documentation/computers/zero.html) (CC BY-SA 4.0) | Zero 2 W TV / GND pad positions; pad diagram image |
+| [Raspberry Pi Official Magazine: Add RCA output to a Pi Zero](https://magazine.raspberrypi.com/articles/rca-pi-zero), [Adafruit: Pi Zero video outputs](https://learn.adafruit.com/introducing-the-raspberry-pi-zero/video-outputs) | Zero / Zero W TV holes: square pad = video, round pad = ground |
 | [Raspberry Pi documentation: config.txt, composite video](https://www.raspberrypi.com/documentation/computers/config_txt.html) | `dtoverlay=vc4-kms-v3d,composite`, `enable_tvout`, `vc4.tv_norm` |
 | [Adafruit #911](https://www.adafruit.com/product/911) | display wiring (red V+, black GND, GND, video), 6-12 V rating, 120 mA at 5 V |
 | [Adafruit PowerBoost 1000 Basic pinouts](https://learn.adafruit.com/adafruit-powerboost-1000-basic/pinouts) | BAT / 5V / GND / EN / LBO behaviour |

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the real spot-revival UI with fake Spotify data - no Pi, no account needed.
+"""Run the real retro-ipod-spotify-revival UI with fake Spotify data - no Pi, no account needed.
 
 Useful for:
   * checking the UI on a laptop (arrow keys = scroll / select / back), and

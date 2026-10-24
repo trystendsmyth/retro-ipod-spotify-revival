@@ -10,4 +10,4 @@ Id	Description	Qty	Unit	Designators
 9	Connector, GND (PowerBoost)	1		
 10	Connector, Haptic driver (perfboard), R1 220R, Q1 2N3904, D1 1N4148, M1, 3 pins	1		HAPTIC
 11	Connector, Hold switch (SPST), 2 pins	1		SW1
-12	Connector, Raspberry Pi Zero 2 W / Zero W, 40-pin header + TV test pad, 9 pins	1		PI
+12	Connector, Raspberry Pi Zero W (or Zero 2 W), 40-pin header holes + TV, 9 pins	1		PI

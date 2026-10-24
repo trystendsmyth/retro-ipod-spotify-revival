@@ -1,17 +1,12 @@
-# 8. Move to the Zero and assemble
+# 8. Assemble
 
-## Move the software
+Before anything goes into the case, run one full test on the desk from the battery: boot,
+Spotify plays, the wheel scrolls with haptics, **Settings -> Shut Down** works and the hold
+switch cuts power.
 
-* **Zero 2 W:** shut the Pi 3 down and move the SD card. The 64-bit image is the same.
-* **Zero W:** you need the **32-bit** image (chapter 3). If you bench-tested with a 32-bit
-  card, just move it; otherwise flash a new card and repeat chapter 4 on the Zero W.
+## Final wiring
 
-Boot the Zero once on a desk with the display connected before closing anything up.
-
-## Wiring to the Zero
-
-Solder directly to the Zero's header holes (no header pins - they will not fit). Same pin
-numbers as the bench:
+All connections, for either Zero:
 
 | Physical pin | Use |
 |---|---|
@@ -22,7 +17,7 @@ numbers as the bench:
 | 22 | GPIO 25 click wheel DATA |
 | 37 | GPIO 26 haptic driver input |
 | 39 | GND haptic driver |
-| TV pad / TV hole | display video (+ GND pad) |
+| TV hole (Zero W) / TV pad (Zero 2 W) | display video (+ the neighbouring GND) |
 
 Full harness diagram: [../wiring/harness.svg](../wiring/harness.svg).
 
@@ -33,8 +28,9 @@ The 4th-gen case is tight. Tips from builders in the Hackaday discussion:
 * Lay a thin pouch cell flat in the back shell and the Pi on top of it.
 * Some builders desoldered or trimmed unused ports on the Zero to save height.
 * Insulate the Pi's underside and every joint with Kapton tape.
-* Keep the PowerBoost's BAT wires short and away from the antenna end of the Pi.
+* Trim wires to length now; keep the PowerBoost's BAT wires short.
 * Route the charging port through the old dock-connector opening.
+* Zero 2 W: its composite wires leave from the underside, so plan the route before laying
+  the board down.
 
-Close the case only after a full test: boot, Spotify plays, wheel and haptics work,
-shutdown from the menu, hold switch cuts power.
+Close the case and repeat the full test.

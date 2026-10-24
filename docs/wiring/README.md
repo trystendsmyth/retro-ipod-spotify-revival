@@ -42,8 +42,8 @@ The new schematics reproduce these connections; the only electrical addition is 
 | Haptic GND | 39 | - | Q1 emitter | sPot diagram |
 | 5 V in | 2 | - | PowerBoost 5V | Hackaday details ("Pi and display run on 5V") |
 | GND | 6 | - | PowerBoost GND | |
-| Composite video | TV pad / TV hole | - | display pin 4 | sPot diagram; Raspberry Pi docs |
-| Video ground | GND pad | - | display pin 3 | Raspberry Pi docs; Adafruit #911 |
+| Composite video | TV hole (Zero W, square pad) / TV pad (Zero 2 W) | - | display pin 4 | sPot diagram; Raspberry Pi docs and magazine |
+| Video ground | round hole beside TV (Zero W) / GND pad (Zero 2 W) | - | display pin 3 | Raspberry Pi docs; Adafruit #911 |
 
 For the `st7789` profile (Ricardo Sappia's Waveshare build) the click wheel DATA moves to
 GPIO 5 (pin 29) because GPIO 25 becomes the display RESET; see the upstream table in

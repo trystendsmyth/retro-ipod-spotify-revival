@@ -4,7 +4,7 @@
 // Apache-2.0. Packet format after Jason Garr's reverse engineering
 // (https://jasongarr.wordpress.com/project-pages/ipod-clickwheel-hack/).
 //
-// spot-revival changes (see NOTICE):
+// retro-ipod-spotify-revival changes (see NOTICE):
 //   * pins are compile-time overridable: -DCLOCK_PIN=.. -DDATA_PIN=.. -DHAPTIC_PIN=..
 //   * the trailing busy loop `while(1){}` (100% of one CPU core) is replaced by
 //     pause(), as done in thehajime's pizero-2026 fork; this matters on the

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>spot-revival Spotify callback relay</title>
+  <title>retro-ipod-spotify-revival Spotify callback relay</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 36rem; margin: 2rem auto; padding: 0 1rem; }
     code { word-break: break-all; }
@@ -37,7 +37,7 @@
         hint.hidden = false;
         return;
       }
-      // spot-revival: only forward to the device on your local network
+      // retro-ipod-spotify-revival: only forward to the device on your local network
       // (*.local mDNS names or private IPv4 addresses), never to arbitrary sites.
       function isLocalTarget(u) {
         var url;

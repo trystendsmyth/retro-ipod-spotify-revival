@@ -21,8 +21,8 @@ Important:
   Do not connect it directly to a GPIO.
 * Feeding 5 V into the GPIO header (or the 5 V test pads) **bypasses the Pi's input
   protection**. Double-check polarity before the first power-up, with a multimeter.
-* The Zero 2 W draws noticeably more than the Zero W. The PowerBoost 1000 has headroom,
-  but a small cell will run down quickly.
+* A Zero 2 W draws noticeably more than a Zero W. The PowerBoost 1000 has headroom for
+  either, but a small cell will run down quickly on a Zero 2 W.
 
 ## Shutting down
 

@@ -1,21 +1,23 @@
-# 4. Install the software (bench Pi)
+# 4. Install the software
 
 On the Pi (over SSH):
 
 ```bash
 sudo apt-get update && sudo apt-get install -y git
-git clone https://github.com/trystendsmyth/spot-revival.git
-cd spot-revival
+git clone https://github.com/trystendsmyth/retro-ipod-spotify-revival.git
+cd retro-ipod-spotify-revival
 sudo DISPLAY_PROFILE=composite TV_NORM=NTSC bash install/install.sh
 ```
 
-Use `TV_NORM=PAL` if your display is set to PAL. The installer takes 10-20 minutes on a
-Pi 3 (longer on a Zero W). What it does:
+Use `TV_NORM=PAL` if your display is set to PAL. Expect this to take a long time on a
+Zero W (package installs and Python libraries run on a single core); a Zero 2 W is much
+quicker. Keep the SSH session open until it prints `Install complete.` What it does:
 
 * installs packages (Python, X, PipeWire for Bluetooth audio, build tools);
 * builds pigpio if your OS no longer packages it, then compiles `clickwheel/click.c` with
   your pin numbers (clock 23, data 25, haptic 26 by default);
-* downloads go-librespot **v0.10.4** for your CPU (64-bit or ARMv6) and checks its SHA256;
+* downloads go-librespot **v0.10.4** - the `armv6_rpi` build on a Zero W, `arm64` on a
+  Zero 2 W - and checks its SHA256;
 * writes the composite display settings to `/boot/firmware/config.txt` and
   `cmdline.txt` (`dtoverlay=vc4-kms-v3d,composite`, `enable_tvout=1`,
   `vc4.tv_norm=...`, as described in the Raspberry Pi config.txt documentation);
@@ -40,16 +42,16 @@ Reboot: `sudo reboot`.
 
 ## First boot
 
-The screen (once connected in chapter 6) shows a setup sequence. You can also follow it
-from the setup page:
+There is no screen yet, so do the setup from your phone. (Once the display is wired in
+chapter 6, the iPod shows the same steps.)
 
 1. **Wi-Fi** - already configured by Imager. (If the Pi cannot join a network, it opens a
    hotspot called `iPod-<number>` via comitup.)
 2. **Spotify Connect** - in the Spotify app on your phone, open the device picker and
    choose **iPod**. go-librespot saves its credentials, so this is a one-time step.
 3. **Link library** - on your phone open `http://ipod.local`, tap **Authorize with
-   Spotify**, approve. (Option B redirect: paste the final URL into **Paste redirect URL**.)
-4. **Sync** starts by itself; then the main menu appears.
+   Spotify**, approve. (Redirect option B: paste the final URL into **Paste redirect URL**.)
+4. **Sync** starts by itself. The setup page shows its progress.
 
 ## Check the services
 
@@ -58,11 +60,10 @@ systemctl status click go-librespot spotifypod spotifypod-portal --no-pager
 journalctl -u go-librespot -b --no-pager | tail -20
 ```
 
-**Check:** all four are `active (running)`; the phone's Spotify app lists **iPod** as a
-device and plays through it (with no audio device configured yet, it still "plays"
-silently - audio is set up in chapter 9 or via the setup page).
+**Check:** all four are `active (running)` and the phone's Spotify app lists **iPod** as a
+device. (Audio output is chosen later on the setup page - chapter 9.)
 
-## Before hardware: preview the UI on any computer
+## Optional: preview the UI on your computer
 
 ```bash
 pip install -r frontend/requirements.txt
