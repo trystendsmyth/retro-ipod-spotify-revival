@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>iPod Spotify Callback Relay</title>
+  <title>spot-revival Spotify callback relay</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 36rem; margin: 2rem auto; padding: 0 1rem; }
     code { word-break: break-all; }
@@ -37,8 +37,22 @@
         hint.hidden = false;
         return;
       }
-      if (!state || !(state.indexOf("http://") === 0 || state.indexOf("https://") === 0)) {
-        msg.textContent = "Missing or invalid state (iPod callback URL). Paste the address bar URL into the portal.";
+      // spot-revival: only forward to the device on your local network
+      // (*.local mDNS names or private IPv4 addresses), never to arbitrary sites.
+      function isLocalTarget(u) {
+        var url;
+        try { url = new URL(u); } catch (e) { return false; }
+        if (url.protocol !== "http:" && url.protocol !== "https:") return false;
+        if (url.pathname !== "/spotify/callback") return false;
+        var h = url.hostname;
+        if (/\.local$/i.test(h)) return true;
+        var m = h.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+        if (!m) return false;
+        var a = +m[1], b = +m[2];
+        return a === 10 || (a === 192 && b === 168) || (a === 172 && b >= 16 && b <= 31);
+      }
+      if (!state || !isLocalTarget(state)) {
+        msg.textContent = "Missing or non-local state (device callback URL). Paste the address bar URL into the setup page instead.";
         hint.hidden = false;
         return;
       }

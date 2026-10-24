@@ -8,6 +8,11 @@
 set -u
 CONF="${1:-/etc/X11/xorg.conf.d/99-fbdev.conf}"
 
+# Composite profile: no fbdev config is installed and X uses KMS directly.
+if [[ ! -f "${CONF}" ]]; then
+  exit 0
+fi
+
 find_lcd() {
   local f name
   for f in /sys/class/graphics/fb*; do
@@ -29,6 +34,7 @@ done
 
 if [[ -z "${pick}" ]]; then
   # Fall back to the highest-numbered fb: the SPI panel registers after the firmware fb.
+  # shellcheck disable=SC2010  # sysfs names are fbN only
   last="$(ls -1 /sys/class/graphics/ 2>/dev/null | grep '^fb[0-9]' | sort -V | tail -1)"
   if [[ -n "${last}" ]]; then
     pick="/dev/${last}"

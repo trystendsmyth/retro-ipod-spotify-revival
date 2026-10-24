@@ -1,5 +1,20 @@
-// To compile on the pi (after installing pigpio):
-// gcc -Wall -pthread -o click click.c -lpigpio -lrt
+// iPod 4th-gen click wheel reader for Raspberry Pi (pigpio).
+//
+// Original: Guy Dupont, sPot (https://github.com/dupontgu/retro-ipod-spotify-client),
+// Apache-2.0. Packet format after Jason Garr's reverse engineering
+// (https://jasongarr.wordpress.com/project-pages/ipod-clickwheel-hack/).
+//
+// spot-revival changes (see NOTICE):
+//   * pins are compile-time overridable: -DCLOCK_PIN=.. -DDATA_PIN=.. -DHAPTIC_PIN=..
+//   * the trailing busy loop `while(1){}` (100% of one CPU core) is replaced by
+//     pause(), as done in thehajime's pizero-2026 fork; this matters on the
+//     single-core Pi Zero W
+//   * standard main() signature; clean shutdown on SIGINT/SIGTERM
+//   * -DNO_HAPTIC builds without the haptic motor output
+//
+// Build (install/install.sh does this for you):
+//   gcc -Wall -pthread -O2 -o click click.c -lpigpio -lrt
+// Output: 3-byte UDP packets {button, button_state, wheel_position} to 127.0.0.1:9090
 
 #include <pigpio.h>
 #include <stdio.h>
@@ -10,10 +25,18 @@
 #include <sys/socket.h> 
 #include <arpa/inet.h> 
 #include <netinet/in.h> 
+#include <signal.h>
 
+// BCM GPIO numbers. Defaults match the original sPot wiring.
+#ifndef CLOCK_PIN
 #define CLOCK_PIN 23
+#endif
+#ifndef DATA_PIN
 #define DATA_PIN 25
+#endif
+#ifndef HAPTIC_PIN
 #define HAPTIC_PIN 26
+#endif
 #define BIT_COUNT 32
 #define PORT 9090 
 #define MAXLINE 1024 
@@ -157,7 +180,14 @@ void onDataEdge(int gpio, int level, uint32_t tick) {
     dataBit = level;
 }
 
-int main(void *args){
+static void onSignal(int sig) {
+    (void)sig;
+    gpioTerminate();
+    exit(0);
+}
+
+int main(int argc, char **argv){
+    (void)argc; (void)argv;
   
     // Creating socket file descriptor 
     if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { 
@@ -169,12 +199,21 @@ int main(void *args){
       
     servaddr.sin_family = AF_INET; 
     servaddr.sin_port = htons(PORT); 
-    servaddr.sin_addr.s_addr = INADDR_ANY; 
+    servaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK); 
 
     if (gpioInitialise() < 0) {
        exit(1);
     }
 
+    // pigpio installs its own handlers in gpioInitialise(); replace them so
+    // systemd stop/restart releases the GPIOs cleanly.
+    gpioSetSignalFunc(SIGINT, onSignal);
+    gpioSetSignalFunc(SIGTERM, onSignal);
+
+    printf("click: clock=%d data=%d haptic=%d\n", CLOCK_PIN, DATA_PIN, HAPTIC_PIN);
+    fflush(stdout);
+
+#ifndef NO_HAPTIC
     // haptic waveform - just a simple on-off pulse
     gpioSetMode(HAPTIC_PIN, PI_OUTPUT);
     gpioPulse_t pulse[2];
@@ -191,13 +230,16 @@ int main(void *args){
     gpioWaveAddGeneric(2, pulse);
 
     hapticWaveId = gpioWaveCreate();
+#endif
     gpioSetPullUpDown(CLOCK_PIN, PI_PUD_UP);
     gpioSetPullUpDown(DATA_PIN, PI_PUD_UP);
     gpioSetAlertFunc(CLOCK_PIN, onClockEdge);
     gpioSetAlertFunc(DATA_PIN, onDataEdge);
 
-    while(1) {
-
-    };
+    // Sleep until a signal arrives; all work happens in pigpio alert callbacks.
+    for (;;) {
+        pause();
+    }
     gpioTerminate();
+    return 0;
 }
