@@ -5,6 +5,11 @@
   <img alt="Schematic: click wheel FPC pins 1 VCC, 2 CLOCK, 6 DATA and 8 GND wired to Pi header pins 1 (3V3), 16 (GPIO23), 22 (GPIO25) and 6 (GND)" src="../wiring/01-click-wheel.svg">
 </picture>
 
+Photos from other builds: the FPC breakout being soldered in
+[Sean's SpotiPod](REFERENCE-BUILDS.md#spotipod-by-sean-shogantech), and the ribbon in the
+adapter in [Ricardo's SpotifyPod](REFERENCE-BUILDS.md#spotifypod-by-ricardo-sappia), with a
+warning about adapters whose printed pinout is mirrored on the underside.
+
 ## Get the click wheel out
 
 Open the iPod (4th gen A1059: pry the steel back away from the white front along the

@@ -31,6 +31,8 @@ before anything goes into the case.
 
 Wiring diagrams for every step: [../wiring/README.md](../wiring/README.md).
 
+Photos of other people's builds, chapter by chapter: [REFERENCE-BUILDS.md](REFERENCE-BUILDS.md).
+
 Hardware test results are tracked in [VALIDATION.md](VALIDATION.md). It's a checklist for
 the maintainer, not a build step.
 

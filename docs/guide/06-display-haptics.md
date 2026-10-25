@@ -7,6 +7,10 @@
   <img alt="Schematic: Pi TV and GND to the Adafruit 911 video and video ground pins; display V+ to +5V and its power ground to GND" src="../wiring/03-composite-display.svg">
 </picture>
 
+Photos from other builds: the same #911 display wired to a Pi Zero in
+[Sean's SpotiPod and his 2" TFT post](REFERENCE-BUILDS.md#spotipod-by-sean-shogantech),
+and the composite screens on the [original sPot](REFERENCE-BUILDS.md#spot-by-guy-dupont).
+
 The #911 driver board has a 4-wire cable: **red = V+ (pin 1), black = GND (pin 2), a
 second GND (pin 3) and composite video (pin 4)**; the colours of the last two vary
 ([Adafruit](https://www.adafruit.com/product/911)). Adafruit's advice for finding them: the
@@ -47,6 +51,9 @@ with `TV_NORM=PAL`.
   <source media="(prefers-color-scheme: dark)" srcset="../wiring/02-haptic-driver-dark.svg">
   <img alt="Schematic: Pi GPIO26 (pin 37) through 220 ohm R1 to the base of 2N3904 Q1, which switches the vibration motor to +5V; 1N4148 flyback diode D1 across the motor" src="../wiring/02-haptic-driver.svg">
 </picture>
+
+Another build: [Ricardo's SpotifyPod](REFERENCE-BUILDS.md#spotifypod-by-ricardo-sappia)
+describes gluing the motor to the case and putting the driver on a small adapter.
 
 Build this on a scrap of perfboard: GPIO 26 (pin 37) -> 220 ohm -> base of a 2N3904;
 emitter to GND (pin 39); collector to the motor's negative lead; motor positive to +5 V.
