@@ -20,6 +20,18 @@ Modifications made in retro-ipod-spotify-revival (2026), per Apache-2.0 section 
   - docs/spotify-callback.html: relay only forwards to *.local or private-IPv4 hosts.
   - install/config/config.env.example: redirect URI options.
   - tools/ui_preview.py, tests/, docs/guide/, docs/wiring/, .github/workflows/: new.
+  - docs/README.md: GitHub Pages front page for this repository's login relay (replaces
+    the upstream text); docs/_config.yml (new) keeps docs/upstream/ off the site.
+  - frontend/requirements.txt: exact version pins; python-mpd2 added.
+  - Music on iPod (2026): frontend/local_player.py and frontend/audio_router.py (new):
+    MPD client and one-source-at-a-time switching; spotify_manager.py routes Now
+    Playing, transport and volume through the active source; view_model.py adds the
+    Music on iPod menus and Settings -> Update Music; install.sh, mpd.conf.template and
+    spotifypod-mpd.service (new) install MPD behind LOCAL_MUSIC.
+  - frontend/about.py (new), view_model.py: Settings -> About; install.sh writes
+    /etc/spotifypod/install.env for it.
+  - install/install.sh: comitup from comitup's own apt repository (COMITUP_SOURCE),
+    apt-source package pinned by SHA256.
 
 Third-party material:
   - docs/images/reference/raspberrypi-zero2-pad-diagram.png: Raspberry Pi Ltd,

@@ -25,7 +25,8 @@ with the one addition this guide makes marked.
 
 * **Spotify Premium** - required for Spotify Connect playback and for Development Mode
   Web API apps ([Spotify, Feb 2026](https://developer.spotify.com/documentation/web-api/tutorials/february-2026-migration-guide)).
-* **GitHub account** - optional, for the Spotify login relay page (chapter 2).
+* **GitHub account** - optional, only if you want to host your own copy of the Spotify
+  login relay page (chapter 2).
 
 ## Tools and consumables
 

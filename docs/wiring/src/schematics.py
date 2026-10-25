@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate the retro-ipod-spotify-revival schematics (SVG + PNG) with schemdraw.
 
-    pip install schemdraw==0.23
+    pip install "schemdraw[matplotlib]==0.23"   # PNG output needs matplotlib
     python3 docs/wiring/src/schematics.py        # writes docs/wiring/*.svg|png
 
 Standard schematic conventions: IEEE resistor/BJT/diode/motor symbols, ground and

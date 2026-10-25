@@ -72,6 +72,34 @@ def main() -> None:
         setattr(player, name, lambda *a, **k: None)
     player.get_volume = lambda: {"value": 60, "max": 100}
 
+    # Music on iPod: a small fake MPD library (no MPD needed)
+    import local_player  # noqa: E402
+
+    local_songs = []
+    for artist, album, titles in [
+        ("Analog Hearts", "Line Out", ["Dock Connector", "Line Out", "Firewire"]),
+        ("Hold Switch", "Monochrome", ["Grey", "Black", "White", "Backlight"]),
+        ("Video Out", "Composite Dreams", ["NTSC", "PAL", "Overscan"]),
+    ]:
+        for n, title in enumerate(titles, 1):
+            local_songs.append({"file": f"{artist}/{album}/{n:02} {title}.mp3", "title": title,
+                                "artist": artist, "album": album, "track": str(n)})
+    local_player.enabled = lambda: True
+    local_player.status = lambda: None
+    local_player.library_ready = lambda: True
+    local_player.artists = lambda: sorted({s["artist"] for s in local_songs})
+    local_player.albums = lambda artist=None: sorted({(s["album"], s["artist"]) for s in local_songs
+                                                     if artist in (None, s["artist"])})
+    local_player.tracks = lambda album, artist=None: [s for s in local_songs if s["album"] == album]
+    local_player.songs = lambda: sorted(local_songs, key=lambda s: s["title"])
+    local_player.playlists = lambda: ["Road Trip 2004"]
+    local_player.playlist_tracks = lambda name: local_songs[::2]
+    for name in ("play", "pause", "resume", "playpause", "next_track", "previous_track",
+                 "stop", "volume", "update_db"):
+        setattr(local_player, name, lambda *a, **k: None)
+    local_player.updating = lambda: False
+    local_player.song_count = lambda: len(local_songs)
+
     import spotify_manager as sm  # noqa: E402
     import bt_manager  # noqa: E402
     import setup_state  # noqa: E402
@@ -124,14 +152,23 @@ def _press(sock, button):
     time.sleep(0.6)
 
 
-def _scroll_down(sock, steps):
-    pos = 10
+def _scroll(sock, steps, direction):
+    pos = 10 if direction > 0 else 40
+    _send(sock, TOUCH, 0, pos)          # clear the reference a button press may have left
     _send(sock, TOUCH, 1, pos)          # finger lands: sets the reference position
     for _ in range(steps):
-        pos += 2                          # clockwise = next item, as on a real iPod
+        pos += 2 * direction              # clockwise = next item, as on a real iPod
         _send(sock, TOUCH, 1, pos)
     _send(sock, TOUCH, 0, pos)          # finger lifted
     time.sleep(0.6)
+
+
+def _scroll_down(sock, steps):
+    _scroll(sock, steps, +1)
+
+
+def _scroll_up(sock, steps):
+    _scroll(sock, steps, -1)
 
 
 def _shot(out_dir, name):
@@ -154,6 +191,10 @@ def _tour(out_dir):
     _press(s, CENTER)                     # Now Playing (last item when something is playing)
     time.sleep(1.5)
     _shot(out_dir, "04-now-playing")
+    _press(s, MENU)
+    _scroll_up(s, 3)                      # Now Playing -> Settings -> Search -> Music on iPod
+    _press(s, CENTER)
+    _shot(out_dir, "05-music-on-ipod")
     os._exit(0)
 
 

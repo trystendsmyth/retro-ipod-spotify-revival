@@ -1,12 +1,13 @@
 # Wiring
 
-All diagrams are generated from source in [`src/`](src/) so they can be corrected and
-re-rendered:
+All diagrams are generated from source in
+[`docs/wiring/src/`](https://github.com/trystendsmyth/retro-ipod-spotify-revival/tree/main/docs/wiring/src)
+so they can be corrected and re-rendered:
 
 ```bash
-pip install schemdraw==0.23 wireviz==0.4.1   # plus graphviz (apt install graphviz)
+pip install "schemdraw[matplotlib]==0.23" wireviz==0.4.1   # plus graphviz (apt install graphviz)
 python3 docs/wiring/src/schematics.py
-wireviz docs/wiring/src/harness.yml -o docs/wiring
+wireviz docs/wiring/src/harness.yml -o docs/wiring && rm -f docs/wiring/harness.html
 ```
 
 ## Schematics (standard symbols)
@@ -26,7 +27,7 @@ Bill of wires: [harness.bom.tsv](harness.bom.tsv).
 
 ## The original sPot diagram (Guy Dupont, 2021)
 
-![Original sPot wiring](../../.docs/sPot_schematic.png)
+![Original sPot wiring](https://raw.githubusercontent.com/trystendsmyth/retro-ipod-spotify-revival/main/.docs/sPot_schematic.png)
 
 The new schematics reproduce these connections; the only electrical addition is D1.
 
@@ -47,4 +48,4 @@ The new schematics reproduce these connections; the only electrical addition is 
 
 For the `st7789` profile (Ricardo Sappia's Waveshare build) the click wheel DATA moves to
 GPIO 5 (pin 29) because GPIO 25 becomes the display RESET; see the upstream table in
-[`docs/upstream/oliver-vv-README.md`](../upstream/oliver-vv-README.md).
+[`docs/upstream/oliver-vv-README.md`](https://github.com/trystendsmyth/retro-ipod-spotify-revival/blob/main/docs/upstream/oliver-vv-README.md).

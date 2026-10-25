@@ -1,0 +1,19 @@
+# MPD for music files on the SD card ("Music on iPod"). Written by install/install.sh;
+# re-running the installer overwrites it. Syntax: https://mpd.readthedocs.io/en/stable/user.html
+music_directory     "__MUSIC_DIR__"
+# .m3u files at the top of the music folder show up under Music on iPod -> Playlists
+playlist_directory  "__MUSIC_DIR__"
+db_file             "__MPD_DIR__/database"
+state_file          "__MPD_DIR__/state"
+sticker_file        "__MPD_DIR__/sticker.sql"
+
+# The UI is the only client: no network access, no Zeroconf announcement.
+bind_to_address     "127.0.0.1"
+port                "__MPD_PORT__"
+zeroconf_enabled    "no"
+
+# The library is rescanned from Settings -> Update Music, not by watching the folder.
+auto_update         "no"
+restore_paused      "yes"
+
+# install.sh appends the audio_output block for AUDIO_BACKEND below this line.

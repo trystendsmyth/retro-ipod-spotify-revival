@@ -1,7 +1,11 @@
+import time
+import about
+import local_player
+import player
 import power
 import spotify_manager
 import re as re
-from functools import lru_cache 
+from functools import lru_cache
 
 MENU_PAGE_SIZE = 6
 
@@ -597,11 +601,192 @@ class ConfirmPage(MenuPage):
         self.index = 0
         return self.previous_page
 
+# ------------------------------------------------------------- Music on iPod (MPD)
+class LocalListPage(MenuPage):
+    """A list loaded from MPD when first shown and dropped on MENU, so it is never stale."""
+    def __init__(self, header, previous_page):
+        super().__init__(header, previous_page, has_sub_page=True)
+        self._items = None
+
+    def load(self):
+        return []
+
+    def items(self):
+        if self._items is None:
+            try:
+                self._items = self.load()
+            except player.PlayerError as exc:
+                print(f"{self.header}: {exc}")
+                self._items = []
+        return self._items
+
+    def total_size(self):
+        return len(self.items())
+
+    def nav_select(self):
+        if not self.items():
+            return self
+        return super().nav_select()
+
+    def nav_back(self):
+        self._items = None
+        self.index = 0
+        self.page_start = 0
+        return self.previous_page
+
+class LocalTracksPage(LocalListPage):
+    """Songs of an album, playlist or the whole library; selecting one queues the list."""
+    def __init__(self, header, previous_page, loader):
+        super().__init__(header, previous_page)
+        self.loader = loader
+
+    def load(self):
+        return self.loader()
+
+    def page_at(self, index):
+        tracks = self.items()
+        # render() calls this for every visible row: build the queue only when played
+        command = NowPlayingCommand(lambda: spotify_manager.run_async(
+            lambda: spotify_manager.play_local([t["file"] for t in tracks], index)))
+        return NowPlayingPage(self, local_player.title_of(tracks[index]), command)
+
+class LocalAlbumsPage(LocalListPage):
+    def __init__(self, previous_page, artist=None):
+        super().__init__(artist or "Albums", previous_page)
+        self.artist = artist
+
+    def load(self):
+        return local_player.albums(self.artist)
+
+    def page_at(self, index):
+        album, album_artist = self.items()[index]
+        return LocalTracksPage(album, self,
+                               lambda: local_player.tracks(album, album_artist or None))
+
+class LocalArtistsPage(LocalListPage):
+    def __init__(self, previous_page):
+        super().__init__("Artists", previous_page)
+
+    def load(self):
+        return local_player.artists()
+
+    def page_at(self, index):
+        return LocalAlbumsPage(self, artist=self.items()[index])
+
+class LocalPlaylistsPage(LocalListPage):
+    def __init__(self, previous_page):
+        super().__init__("Playlists", previous_page)
+
+    def load(self):
+        return local_player.playlists()
+
+    def page_at(self, index):
+        name = self.items()[index]
+        return LocalTracksPage(name, self, lambda: local_player.playlist_tracks(name))
+
+class LocalMusicPage(MenuPage):
+    def __init__(self, previous_page):
+        super().__init__("Music on iPod", previous_page, has_sub_page=True)
+        self.items = [
+            LocalArtistsPage(self),
+            LocalAlbumsPage(self),
+            LocalTracksPage("Songs", self, local_player.songs),
+            LocalPlaylistsPage(self),
+        ]
+
+    def total_size(self):
+        return len(self.items)
+
+    def page_at(self, index):
+        return self.items[index]
+
+class UpdateMusicPage(MenuPage):
+    """Settings -> Update Music: rescan the music folder (MPD `update`)."""
+    def __init__(self, previous_page):
+        super().__init__("Update Music", previous_page, has_sub_page=True)
+        self.started = False
+        self.failed = False
+        self.songs = None
+
+    def nav_select(self):
+        # MPD queues the rescan and answers at once; updating() then reports progress.
+        self.songs = None
+        self.failed = False
+        try:
+            local_player.update_db()
+            self.started = True
+        except player.PlayerError as exc:
+            print("update music:", exc)
+            self.failed = True
+        return self
+
+    def render(self):
+        msg = "MPD not running" if self.failed else "Select to update"
+        if self.started:
+            if local_player.updating():
+                self.songs = None
+                msg = "Updating..."
+            else:
+                if self.songs is None:
+                    try:
+                        self.songs = local_player.song_count()
+                    except player.PlayerError:
+                        self.songs = 0
+                msg = f"{self.songs} songs"
+        lines = [LineItem(msg, LINE_HIGHLIGHT, False)]
+        for _ in range(MENU_PAGE_SIZE - 1):
+            lines.append(EMPTY_LINE_ITEM)
+        return MenuRendering(lines=lines, header=self.header, page_start=0, total_count=1)
+
+    def nav_back(self):
+        self.started = False
+        return self.previous_page
+
+class AboutPage(MenuPage):
+    """Label rows (white) with their values underneath; the wheel moves between values."""
+    REFRESH_SECONDS = 10
+
+    def __init__(self, previous_page):
+        super().__init__("About", previous_page, has_sub_page=True)
+        self.rows = []
+        self.loaded_at = 0
+        self.index = 1
+
+    def _rows(self):
+        if time.time() - self.loaded_at > self.REFRESH_SECONDS:
+            self.loaded_at = time.time()
+            self.rows = []
+            for label, value in about.items():
+                self.rows.append(PlaceHolderPage(label, self, has_sub_page=False, is_title=True))
+                self.rows.append(PlaceHolderPage(value, self, has_sub_page=False))
+        return self.rows
+
+    def total_size(self):
+        return len(self._rows())
+
+    def page_at(self, index):
+        return self._rows()[index]
+
+    def get_index_jump_up(self):
+        return 2
+
+    def get_index_jump_down(self):
+        return 2
+
+    def nav_select(self):
+        return self
+
+    def nav_back(self):
+        self.index, self.page_start, self.loaded_at = 1, 0, 0
+        return self.previous_page
+
 class SettingsPage(MenuPage):
     def __init__(self, previous_page):
         super().__init__("Settings", previous_page, has_sub_page=True)
-        self.items = [
-            SyncLibraryPage(self),
+        self.items = [AboutPage(self), SyncLibraryPage(self)]
+        if local_player.enabled():
+            self.items.append(UpdateMusicPage(self))
+        self.items += [
             ConfirmPage("Shut Down", "Shut down?", self, power.shutdown, "Shutting down..."),
             ConfirmPage("Reboot", "Reboot?", self, power.reboot, "Rebooting..."),
         ]
@@ -615,24 +800,31 @@ class SettingsPage(MenuPage):
 class RootPage(MenuPage):
     def __init__(self, previous_page):
         super().__init__("iPod", previous_page, has_sub_page=True)
+        self.local_music = LocalMusicPage(self)
+        self.now_playing = NowPlayingPage(self, "Now Playing", NowPlayingCommand())
         self.pages = [
             ArtistsPage(self),
             AlbumsPage(self),
             RecentlyPlayedPage(self),
             PlaylistsPage(self),
             ShowsPage(self),
+            self.local_music,
             SearchPage(self),
             SettingsPage(self),
-            NowPlayingPage(self, "Now Playing", NowPlayingCommand())
+            self.now_playing,
         ]
         self.index = 0
         self.page_start = 0
-    
+
     def get_pages(self):
-        if (not spotify_manager.DATASTORE.now_playing):
-            return self.pages[0:-1]
-        return self.pages
-    
+        # Music on iPod only when MPD has songs (never with LOCAL_MUSIC=0);
+        # Now Playing only while something is loaded.
+        pages = [p for p in self.pages
+                 if (p is not self.local_music or local_player.library_ready())
+                 and (p is not self.now_playing or spotify_manager.DATASTORE.now_playing)]
+        self.index = min(self.index, len(pages) - 1)
+        return pages
+
     def total_size(self):
         return len(self.get_pages())
 

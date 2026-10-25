@@ -1,0 +1,5 @@
+# GitHub Pages (Jekyll) settings for the /docs site.
+# upstream/ is a preserved copy of oliver-vv's README; it stays in the repo but is not
+# published, so the site never shows another project's redirect URI.
+exclude:
+  - upstream/

@@ -10,6 +10,7 @@ Group=spotifypod
 Environment=HOME=/var/lib/spotifypod
 # pw-dump / wpctl talk to the spotifypod user's PipeWire (user@__UID__.service)
 Environment=XDG_RUNTIME_DIR=/run/user/__UID__
+EnvironmentFile=-/etc/spotifypod/install.env
 EnvironmentFile=-/etc/spotifypod/config.env
 WorkingDirectory=/opt/spotifypod/portal
 ExecStart=/opt/spotifypod/venv/bin/python -m flask --app app run --host 0.0.0.0 --port 80

@@ -10,6 +10,9 @@ Tkinter UI (ChicagoFLF look) driven by UDP click-wheel events on port **9090**.
 | `view_model.py` | Menu navigation |
 | `spotify_manager.py` | Web API (spotipy PKCE) + library sync |
 | `player.py` | go-librespot REST client |
+| `local_player.py` | MPD client for music files on the SD card (Music on iPod) |
+| `audio_router.py` | One active source: Spotify or Music on iPod |
+| `about.py` | Settings -> About values |
 | `datastore.py` | SQLite cache |
 | `setup_state.py` | First-boot Wi‑Fi / Connect / link state |
 | `bt_manager.py` | Bluetooth speakers (bluetoothctl + PipeWire) |

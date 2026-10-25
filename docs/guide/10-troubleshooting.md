@@ -1,7 +1,7 @@
 # 10. Troubleshooting
 
 Logs: `journalctl -u <service> -b --no-pager | tail -50` with service `click`,
-`go-librespot`, `spotifypod` or `spotifypod-portal`.
+`go-librespot`, `spotifypod`, `spotifypod-portal` or `spotifypod-mpd`.
 
 | Symptom | Things to check |
 |---|---|
@@ -14,6 +14,10 @@ Logs: `journalctl -u <service> -b --no-pager | tail -50` with service `click`,
 | Wheel events but UI doesn't move | `click` and `spotifypod` must both run; only one program can bind UDP 9090. |
 | Black composite screen | Nothing in the mini-HDMI port; Zero W: video on the square TV hole; `grep vc4 /boot/firmware/config.txt` shows `dtoverlay=vc4-kms-v3d,composite`; video and ground wires not swapped; display power (see 6-12 V note). |
 | Rolling / black-and-white picture | NTSC vs PAL mismatch: re-run installer with the other `TV_NORM`. |
+| No **Music on iPod** in the menu | It is hidden until MPD has at least one song: copy files to `/srv/music`, then **Settings -> Update Music**. Check `systemctl status spotifypod-mpd`. Not installed with `LOCAL_MUSIC=0`. |
+| **Update Music** says "MPD not running" | `journalctl -u spotifypod-mpd -b --no-pager`; the config is `/var/lib/spotifypod/mpd/mpd.conf`. |
+| A song is missing from Music on iPod | Files copied with plain `rsync -a` or `scp` keep your computer's permissions: run `chmod -R a+rX /srv/music`, then **Update Music**. The format must be one MPD decodes; protected `.m4p` files never play. |
+| A compilation shows up under many artists | Menus group by the album artist tag; set one (e.g. "Various Artists") on every track, then **Update Music**. |
 | Haptics continue at end of list | Known sPot behaviour: haptics follow the finger, not the UI. |
 | Random reboots | Battery too small or long BAT wires to the PowerBoost; low battery (red LBO LED). |
 | Pi Zero W feels slow | Expected on its single core. Bluetooth audio (PipeWire) costs CPU; a wired DAC with `AUDIO_BACKEND=alsa` is lighter. A Zero 2 W is the faster alternative. |
