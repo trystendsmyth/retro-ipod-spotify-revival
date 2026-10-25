@@ -1,0 +1,28 @@
+# Haptic driver harness (WireViz 0.4 format). Same connections as schematic 02.
+# Render: wireviz -f ps docs/wiring/src/harness-haptic.yml -o docs/wiring
+# The motor's +5V comes from the PowerBoost: see harness-power.
+options:
+  bgcolor: WH
+
+connectors:
+  HAPTIC:
+    type: Haptic driver (perfboard)
+    subtype: R1 220R, Q1 2N3904, D1 1N4148, M1
+    pins: [IN, GND]
+    pinlabels: [R1 to Q1 base, Q1 emitter]
+  PI:
+    type: Pi Zero W / Zero 2 W
+    subtype: 40-pin header
+    pins: [37, 39]
+    pinlabels: [GPIO26, GND]
+
+cables:
+  W2:
+    wirecount: 2
+    colors: [GN, BK]
+    gauge: 30 AWG
+
+connections:
+  - - HAPTIC: [IN, GND]
+    - W2: [1, 2]
+    - PI: [37, 39]

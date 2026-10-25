@@ -16,6 +16,8 @@ LIGHT = {
     "teal": "#16a085",
     "green": "#1e8449",
     "yellow": "#b7950b",
+    "on_wire": "#ffffff",   # text on a wire-coloured fill
+    "on_fg": "#ffffff",     # text on a foreground-coloured fill
 }
 
 DARK = {
@@ -28,6 +30,8 @@ DARK = {
     "teal": "#56d4bc",
     "green": "#7ee787",
     "yellow": "#f2cc60",
+    "on_wire": "#0d1117",
+    "on_fg": "#0d1117",
 }
 
 THEMES = (LIGHT, DARK)

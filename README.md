@@ -28,7 +28,7 @@ which solved those problems, and adds the original sPot display, Pi Zero W suppo
 display, haptics, power, assembly, first boot, troubleshooting. Written so someone who has
 never built one can follow it step by step.
 
-**[Wiring diagrams](docs/wiring/README.md)** - schematics, harness diagram, pin tables,
+**[Wiring diagrams](docs/wiring/README.md)** - header map, schematics, harness drawings, pin table,
 with the source for every connection.
 
 ## What runs on the Pi

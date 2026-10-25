@@ -24,7 +24,8 @@ All connections, for either Zero:
 | 39 | GND haptic driver |
 | TV hole (Zero W) / TV pad (Zero 2 W) | display video (+ the neighbouring GND) |
 
-Full harness diagram: [../wiring/harness.svg](../wiring/harness.svg).
+Harness drawings, one per subsystem (click wheel, haptic, display, power), and the header
+map of every pin to solder: [../wiring/README.md](../wiring/README.md).
 
 ## Fitting it in
 

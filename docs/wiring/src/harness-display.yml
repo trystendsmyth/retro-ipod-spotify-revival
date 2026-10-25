@@ -1,0 +1,30 @@
+# Composite video harness (WireViz 0.4 format). Same connections as schematic 03.
+# Render: wireviz -f ps docs/wiring/src/harness-display.yml -o docs/wiring
+# The display's power pins (1 V+, 2 GND) go to the PowerBoost: see harness-power.
+options:
+  bgcolor: WH
+
+connectors:
+  DISP:
+    type: Adafruit 911 TFT driver
+    subtype: 4-wire cable
+    pins: [1, 2, 3, 4]
+    pinlabels: [V+ red, GND black, GND video, VIDEO]
+    hide_disconnected_pins: true
+  PI:
+    type: Pi Zero W / Zero 2 W
+    subtype: "Zero W: TV holes / Zero 2 W: underside pads"
+    pins: [GND, TV]
+    pinlabels: [video ground, composite video]
+
+cables:
+  W3:
+    wirecount: 2
+    colors: [BK, YE]
+    gauge: 30 AWG
+    notes: Zero W - holes marked TV (square = video); Zero 2 W - TV / GND test pads
+
+connections:
+  - - DISP: [3, 4]
+    - W3: [1, 2]
+    - PI: [GND, TV]

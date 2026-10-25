@@ -1,0 +1,74 @@
+# Power harness (WireViz 0.4 format). Same connections as schematic 04.
+# Render: wireviz -f ps docs/wiring/src/harness-power.yml -o docs/wiring
+# The PowerBoost output fans out to four places. Drawn as one fan-out, the 5V and GND
+# wires would cross, so the PowerBoost's pads are drawn once per destination
+# (U3 to Pi, U3 to display, ...): they are the same 5V / GND / EN pads on one board.
+# The charger and battery side is in schematic 04.
+options:
+  bgcolor: WH
+
+connectors:
+  U3 to Pi:
+    type: PowerBoost 1000 Basic
+    subtype: same pads as the other U3 rows
+    pins: [5V, GND]
+  PI:
+    type: Pi Zero W / Zero 2 W
+    subtype: 40-pin header
+    pins: [2, 6]
+    pinlabels: [5V, GND]
+  U3 to display:
+    type: PowerBoost 1000 Basic
+    pins: [5V, GND]
+  DISP:
+    type: Adafruit 911 TFT driver
+    subtype: power wires
+    pins: [1, 2]
+    pinlabels: [V+ red, GND black]
+  U3 to motor:
+    type: PowerBoost 1000 Basic
+    pins: [5V]
+  HAPTIC:
+    type: Haptic motor M1
+    pins: [+]
+    pinlabels: [M1+ / D1 cathode]
+  U3 to switch:
+    type: PowerBoost 1000 Basic
+    pins: [EN, GND]
+  SW1:
+    type: iPod hold switch (SPST)
+    subtype: closed = OFF
+    pins: [A, B]
+
+cables:
+  W4:
+    wirecount: 2
+    colors: [RD, BK]
+    gauge: 24 AWG
+    notes: 5 V into the header bypasses the Pi's input protection
+  W5:
+    wirecount: 2
+    colors: [RD, BK]
+    gauge: 26 AWG
+  W6:
+    wirecount: 1
+    colors: [RD]
+    gauge: 30 AWG
+  W7:
+    wirecount: 2
+    colors: [WH, BK]
+    gauge: 30 AWG
+
+connections:
+  - - U3 to Pi: [5V, GND]
+    - W4: [1, 2]
+    - PI: [2, 6]
+  - - U3 to display: [5V, GND]
+    - W5: [1, 2]
+    - DISP: [1, 2]
+  - - U3 to motor: [5V]
+    - W6: [1]
+    - HAPTIC: [+]
+  - - U3 to switch: [EN, GND]
+    - W7: [1, 2]
+    - SW1: [A, B]
