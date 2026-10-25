@@ -4,6 +4,11 @@ Before anything goes into the case, run one full test on the desk from the batte
 Spotify plays, the wheel scrolls with haptics, **Settings -> Shut Down** works and the hold
 switch cuts power.
 
+Photos from other builds: insulating the case with polyimide tape, hot glue on the joints
+and everything fitted in [Sean's SpotiPod](REFERENCE-BUILDS.md#spotipod-by-sean-shogantech);
+the base plate, component layout and long service wires in
+[Ricardo's SpotifyPod](REFERENCE-BUILDS.md#spotifypod-by-ricardo-sappia).
+
 ## Final wiring
 
 All connections, for either Zero:
@@ -19,7 +24,8 @@ All connections, for either Zero:
 | 39 | GND haptic driver |
 | TV hole (Zero W) / TV pad (Zero 2 W) | display video (+ the neighbouring GND) |
 
-Full harness diagram: [../wiring/harness.svg](../wiring/harness.svg).
+Harness drawings, one per subsystem (click wheel, haptic, display, power), and the header
+map of every pin to solder: [../wiring/README.md](../wiring/README.md).
 
 ## Fitting it in
 

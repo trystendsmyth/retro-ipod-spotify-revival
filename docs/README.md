@@ -12,6 +12,9 @@ login back to the iPod. It only forwards to `*.local` names or private network a
 If you forked this repo, your address is
 `https://<your-github-user>.github.io/<repo-name>/spotify-callback.html`.
 
+**Relay stability:** other people's builds use this address, so the page must not be
+moved or renamed, and the repository must not be renamed while builds depend on it.
+
 - [Build guide](guide/README.md)
 - [Wiring diagrams](wiring/README.md)
 - [Source code](https://github.com/trystendsmyth/retro-ipod-spotify-revival)

@@ -37,9 +37,16 @@ def _address() -> tuple[str, int]:
     return os.environ.get("MPD_HOST", "127.0.0.1"), int(os.environ.get("MPD_PORT", "6600"))
 
 
-def _timeout() -> float:
+def _timeout(library: bool = False) -> float:
+    # Socket timeout per read. Library listings get longer: on a single-core Zero W MPD
+    # may take a while to start answering for a large library.
+    if library:
+        return float(os.environ.get("MPD_LIBRARY_TIMEOUT", "15"))
     return float(os.environ.get("MPD_TIMEOUT", "3"))
 
+
+# Selecting a song queues at most this many songs around it, not a whole library.
+QUEUE_WINDOW = 200
 
 _lock = threading.Lock()
 _client = None
@@ -55,8 +62,11 @@ def _drop() -> None:
     _client = None
 
 
-def _call(fn: Callable[[Any], Any]) -> Any:
-    """Run fn(client) on a live connection; reconnect once if MPD dropped us."""
+def _call(fn: Callable[[Any], Any], library: bool = False) -> Any:
+    """Run fn(client) on a live connection; reconnect once if MPD dropped us.
+
+    library=True uses the longer library timeout for this call only.
+    """
     global _client
     with _lock:
         for attempt in (0, 1):
@@ -66,7 +76,16 @@ def _call(fn: Callable[[Any], Any]) -> Any:
                     client.timeout = _timeout()
                     client.connect(*_address())
                     _client = client
-                return fn(_client)
+                if not library:
+                    return fn(_client)
+                _client.timeout = _timeout(library=True)
+                try:
+                    return fn(_client)
+                finally:
+                    try:
+                        _client.timeout = _timeout()
+                    except Exception:  # connection already gone; the error above is the one to report
+                        pass
             except mpd.CommandError as exc:
                 raise LocalPlayerError(str(exc)) from exc
             except (mpd.ConnectionError, OSError) as exc:
@@ -95,20 +114,32 @@ def is_playing(st: Optional[dict]) -> bool:
     return bool(st) and st.get("state") == "play"
 
 
+def queue_window(count: int, start: int, size: int = QUEUE_WINDOW) -> tuple[int, int]:
+    """[lo, hi) slice of at most `size` songs around `start`, shifted to stay in range."""
+    lo = max(0, min(start - size // 2, count - size))
+    return lo, min(count, lo + size)
+
+
 def play(uris: list[str], start: int = 0) -> None:
-    """Replace the queue with `uris` (paths relative to the music folder), play uris[start]."""
+    """Replace the queue with `uris` (paths relative to the music folder), play uris[start].
+
+    Long lists (the whole Songs menu) are cut to QUEUE_WINDOW songs around `start`.
+    """
     if not uris:
         return
+    start = max(0, min(start, len(uris) - 1))
+    lo, hi = queue_window(len(uris), start)
+    window = uris[lo:hi]
 
     def run(c):
         c.clear()
         c.command_list_ok_begin()
-        for uri in uris:
+        for uri in window:
             c.add(uri)
         c.command_list_end()
-        c.play(max(0, min(start, len(uris) - 1)))
+        c.play(start - lo)
 
-    _call(run)
+    _call(run, library=True)
 
 
 def pause() -> None:
@@ -261,18 +292,18 @@ def title_of(song: dict) -> str:
 
 # Menus group by album artist, so a compilation stays one album and two albums with the
 # same name stay apart. MPD itself falls back to the artist tag when a file has no album
-# artist (checked on MPD 0.23.12 and 0.24.4), for both `list` and `find`.
+# artist, for both `list` and `find`.
 def artists() -> list[str]:
-    return _values(_call(lambda c: c.list("albumartist")), "albumartist")
+    return _values(_call(lambda c: c.list("albumartist"), library=True), "albumartist")
 
 
 def albums(artist: Optional[str] = None) -> list[tuple[str, str]]:
     """(album, album artist) pairs, by album name."""
     if artist is None:
-        rows = _call(lambda c: c.list("album", "group", "albumartist"))
+        rows = _call(lambda c: c.list("album", "group", "albumartist"), library=True)
     else:
         rows = [dict(r, albumartist=artist)
-                for r in _call(lambda c: c.list("album", "albumartist", artist))]
+                for r in _call(lambda c: c.list("album", "albumartist", artist), library=True)]
     pairs = {(_first(r.get("album")), _first(r.get("albumartist")) or "") for r in rows}
     return sorted((p for p in pairs if p[0]), key=lambda p: (p[0].casefold(), p[1].casefold()))
 
@@ -280,23 +311,23 @@ def albums(artist: Optional[str] = None) -> list[tuple[str, str]]:
 def tracks(album: str, artist: Optional[str] = None) -> list[dict]:
     """Songs of an album (by album artist when given) in disc/track order."""
     query = ["album", album] + (["albumartist", artist] if artist else [])
-    rows = _call(lambda c: c.find(*query))
+    rows = _call(lambda c: c.find(*query), library=True)
     return sorted(rows, key=lambda s: (_number(s.get("disc")), _number(s.get("track")), s["file"]))
 
 
 def songs() -> list[dict]:
     """Every song, by title."""
-    rows = [r for r in _call(lambda c: c.listallinfo()) if "file" in r]
+    rows = [r for r in _call(lambda c: c.listallinfo(), library=True) if "file" in r]
     return sorted(rows, key=lambda s: title_of(s).casefold())
 
 
 def playlists() -> list[str]:
     """.m3u files at the top of the music folder (MPD's playlist_directory)."""
-    rows = _call(lambda c: c.listplaylists())
+    rows = _call(lambda c: c.listplaylists(), library=True)
     return sorted((r["playlist"] for r in rows if r.get("playlist")), key=str.casefold)
 
 
 def playlist_tracks(name: str) -> list[dict]:
     """Entries MPD found in its database; a missing file would make the whole add fail."""
-    return [r for r in _call(lambda c: c.listplaylistinfo(name))
+    return [r for r in _call(lambda c: c.listplaylistinfo(name), library=True)
             if r.get("file") and "last-modified" in r]

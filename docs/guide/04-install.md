@@ -26,12 +26,9 @@ quicker. Keep the SSH session open until it prints `Install complete.` What it d
 * installs MPD for your own music files as a fifth service, `spotifypod-mpd`, with the
   music folder `/srv/music` ([chapter 9b](09b-own-music.md); `LOCAL_MUSIC=0` skips it);
 * installs [comitup](https://davesteele.github.io/comitup/) for the setup hotspot from
-  comitup's own apt repository. The Bookworm package crashes with Bookworm's
-  python3-networkmanager
-  ([comitup #234](https://github.com/davesteele/comitup/issues/234)), and comitup's
-  repository carries the fixed versions for Bookworm and Trixie. This adds that repository
-  as a trusted package source. `COMITUP_SOURCE=debian` uses the distribution's package
-  instead, and on a re-run removes the repository again;
+  comitup's own apt repository, which it adds as a trusted package source.
+  `COMITUP_SOURCE=debian` uses the distribution's package instead (on a re-run it also
+  removes that repository);
 * sets the hostname to `ipod`.
 
 ## Configure

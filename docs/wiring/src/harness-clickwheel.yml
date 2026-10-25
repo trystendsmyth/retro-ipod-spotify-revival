@@ -1,0 +1,31 @@
+# Click wheel harness (WireViz 0.4 format: https://github.com/wireviz/WireViz).
+# Render: wireviz -f ps docs/wiring/src/harness-clickwheel.yml -o docs/wiring
+# Same connections as schematic 01; wire colours match it. PI pins are physical pins.
+options:
+  bgcolor: WH
+
+connectors:
+  J1:
+    type: Click wheel
+    subtype: 8-pin 0.5 mm FPC breakout
+    pins: [1, 2, 3, 4, 5, 6, 7, 8]
+    pinlabels: [VCC, CLOCK, n.c., n.c., n.c., DATA, n.c., GND]
+    hide_disconnected_pins: true
+  PI:
+    type: Pi Zero W / Zero 2 W
+    subtype: 40-pin header
+    pins: [1, 16, 22, 6]
+    pinlabels: [3V3, GPIO23, GPIO25, GND]
+    hide_disconnected_pins: true
+
+cables:
+  W1:
+    wirecount: 4
+    colors: [RD, VT, TQ, BK]
+    gauge: 30 AWG
+    notes: keep short; pins 3 and 7 unconnected as in sPot
+
+connections:
+  - - J1: [1, 2, 6, 8]
+    - W1: [1-4]
+    - PI: [1, 16, 22, 6]
