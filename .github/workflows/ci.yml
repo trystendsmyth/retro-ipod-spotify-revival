@@ -20,6 +20,31 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y shellcheck
       - run: shellcheck -S warning install/install.sh install/bin/*.sh tests/*.sh
       - run: bash tests/test_configure_display.sh
+  diagrams:
+    # Re-render every diagram with the pinned toolchain and fail if the committed files
+    # differ. Runs in a plain ubuntu:24.04 container so fonts and graphviz match the
+    # environment the files were rendered in.
+    runs-on: ubuntu-24.04
+    container: ubuntu:24.04
+    steps:
+      - run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            python3 python3-venv graphviz git ca-certificates
+      - uses: actions/checkout@v4
+      - name: Render
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          python3 -m venv /tmp/venv
+          /tmp/venv/bin/pip install -r docs/wiring/src/requirements.txt
+          export PATH="/tmp/venv/bin:$PATH"
+          python docs/wiring/src/schematics.py
+          python docs/wiring/src/header_map.py
+          for f in clickwheel haptic display power; do
+            wireviz -f ps "docs/wiring/src/harness-$f.yml" -o docs/wiring
+          done
+      - name: Committed diagrams match a fresh render
+        run: git status --porcelain docs/wiring && git diff --exit-code --stat docs/wiring && test -z "$(git status --porcelain docs/wiring)"
   clickwheel:
     runs-on: ubuntu-24.04
     steps:
