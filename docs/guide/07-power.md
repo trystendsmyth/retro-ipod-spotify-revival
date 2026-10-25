@@ -1,6 +1,9 @@
 # 7. Power
 
-Diagram: [../wiring/04-power.svg](../wiring/04-power.svg)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../wiring/04-power-dark.svg">
+  <img alt="Schematic: USB charger feeding the Li-ion cell and the PowerBoost 1000 Basic BAT input; hold switch from EN to ground; PowerBoost 5V and GND out to the Pi, display and motor" src="../wiring/04-power.svg">
+</picture>
 
 The sPot power path: **USB -> charger -> battery -> PowerBoost -> 5.2 V rail -> Pi,
 display, motor.** The iPod's hold switch becomes the power switch through the PowerBoost's
