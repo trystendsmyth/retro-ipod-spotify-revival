@@ -39,6 +39,8 @@ Modifications made in retro-ipod-spotify-revival (2026), per Apache-2.0 section 
     background, a "-dark" variant of every schematic, reproducible output from pinned
     versions; docs/wiring/0*-dark.svg|png (new); guide chapters 5-7 and
     docs/wiring/README.md show light/dark diagrams with <picture>.
+  - docs/guide/REFERENCE-BUILDS.md (new): links to other builds (no copied images),
+    linked from the guide README and chapters 5-8; CREDITS.md lists them.
 
 Third-party material:
   - docs/images/reference/raspberrypi-zero2-pad-diagram.png: Raspberry Pi Ltd,

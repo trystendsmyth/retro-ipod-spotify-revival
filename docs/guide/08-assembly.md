@@ -4,6 +4,11 @@ Before anything goes into the case, run one full test on the desk from the batte
 Spotify plays, the wheel scrolls with haptics, **Settings -> Shut Down** works and the hold
 switch cuts power.
 
+Photos from other builds: insulating the case with polyimide tape, hot glue on the joints
+and everything fitted in [Sean's SpotiPod](REFERENCE-BUILDS.md#spotipod-by-sean-shogantech);
+the base plate, component layout and long service wires in
+[Ricardo's SpotifyPod](REFERENCE-BUILDS.md#spotifypod-by-ricardo-sappia).
+
 ## Final wiring
 
 All connections, for either Zero:

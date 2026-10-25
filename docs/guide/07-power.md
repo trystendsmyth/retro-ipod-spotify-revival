@@ -5,6 +5,11 @@
   <img alt="Schematic: USB charger feeding the Li-ion cell and the PowerBoost 1000 Basic BAT input; hold switch from EN to ground; PowerBoost 5V and GND out to the Pi, display and motor" src="../wiring/04-power.svg">
 </picture>
 
+Other builds: [Ricardo's SpotifyPod](REFERENCE-BUILDS.md#spotifypod-by-ricardo-sappia)
+adds a power latch and a low-battery signal to a PowerBoost 1000C, and the
+[community notes](REFERENCE-BUILDS.md#community-notes-and-diagrams) cover larger cells and
+battery plug polarity.
+
 The sPot power path: **USB -> charger -> battery -> PowerBoost -> 5.2 V rail -> Pi,
 display, motor.** The iPod's hold switch becomes the power switch through the PowerBoost's
 EN pin.

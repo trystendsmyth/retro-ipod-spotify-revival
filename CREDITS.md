@@ -18,6 +18,18 @@ sPot Revival only exists because these people published their work.
 | **joan2937** | pigpio | [GitHub](https://github.com/joan2937/pigpio) |
 | **Spotipy** maintainers | Spotify Web API client | [GitHub](https://github.com/spotipy-dev/spotipy) |
 
+## Other builds and diagrams (linked, not copied)
+
+Listed in [docs/guide/REFERENCE-BUILDS.md](docs/guide/REFERENCE-BUILDS.md). No photos or
+diagrams from these are included in this repository.
+
+| Who | What | Link |
+|---|---|---|
+| **Sean (Shogan.tech)** | SpotiPod build log (Pi Zero W, Adafruit #911 composite display) and a post on wiring the #911 to a Pi Zero | [Build log](https://www.shogan.co.uk/builds/spotipod-spotify-streaming-device-from-an-ipod-classic/), [2" TFT post](https://www.shogan.co.uk/builds/tiny-2-tft-composite-video-on-raspberry-pi-zero/) |
+| **Benjamin Stallings** | Beginner-oriented sPot wiring diagram (Nov 2022) | [Imgur](https://imgur.com/a/epvkWsR) |
+| **Kakoub** | Community wiring diagram, re-hosted with credit on Shogan.tech's build log | [Hackaday.io profile](https://hackaday.io/Kakoub) |
+| **Ricardo Sappia** (rsappia) | "Spotifypod base plate and holder": 3D-printed base plate, key-press extension and stand. Creative Commons - Attribution - Non-Commercial; not included in this repository | [Thingiverse](https://www.thingiverse.com/thing:4789155) |
+
 ## Third-party software the installer sets up
 
 These are installed from their own packages (apt or pip) and aren't copied into this
