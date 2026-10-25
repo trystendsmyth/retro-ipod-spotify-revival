@@ -37,6 +37,8 @@ class FakeServer:
         self.connects = 0
         self.queue, self.state, self.pos, self.volume = [], "stop", None, 50
         self.updating = False
+        self.address = None
+        self.list_timeouts = []
 
 
 class FakeMPD:
@@ -51,6 +53,7 @@ class FakeMPD:
         if self.server.down:
             raise ConnectionRefusedError(111, "Connection refused")
         self.server.connects += 1
+        self.server.address = (host, port)
 
     def disconnect(self):
         pass
@@ -87,6 +90,9 @@ class FakeMPD:
 
     def add(self, uri):
         assert self.in_list, "adds should be batched in a command list"
+        if uri.startswith("bulk/"):
+            self.server.queue.append({"file": uri})
+            return
         match = [s for s in DB if s["file"] == uri]
         if not match:
             raise mpd.CommandError("[50@0] {add} No such directory")
@@ -124,6 +130,7 @@ class FakeMPD:
         return {"songs": str(len(DB))}
 
     def list(self, tag, *args):
+        self.server.list_timeouts.append(self.timeout)
         group = None
         if len(args) >= 2 and args[-2] == "group":
             group, args = args[-1], args[:-2]
@@ -229,6 +236,40 @@ def test_disabled_never_talks_to_mpd(server, monkeypatch):
     assert lp.status() is None
     assert not lp.library_ready()
     assert server.connects == 0
+
+
+def test_mpd_address_read_when_connecting(server, monkeypatch):
+    # local_player is already imported; a later env change (config files loaded after
+    # import, outside systemd) must still be used
+    monkeypatch.setenv("MPD_HOST", "10.0.0.9")
+    monkeypatch.setenv("MPD_PORT", "6611")
+    lp.status()
+    assert server.address == ("10.0.0.9", 6611)
+
+
+def test_library_calls_get_the_longer_timeout(server, monkeypatch):
+    monkeypatch.setenv("MPD_TIMEOUT", "3")
+    monkeypatch.setenv("MPD_LIBRARY_TIMEOUT", "15")
+    lp.artists()
+    assert server.list_timeouts == [15.0]
+    assert lp._client.timeout == 3.0          # back to the playback timeout afterwards
+
+
+@pytest.mark.parametrize("count,start,expected", [
+    (5, 3, (0, 5)),            # short list: everything
+    (3000, 0, (0, 200)),
+    (3000, 1500, (1400, 1600)),
+    (3000, 2999, (2800, 3000)),
+])
+def test_queue_window(count, start, expected):
+    assert lp.queue_window(count, start) == expected
+
+
+def test_choosing_from_a_long_list_queues_a_window(server):
+    uris = [f"bulk/{n:04}.mp3" for n in range(3000)]
+    lp.play(uris, start=1500)
+    assert len(server.queue) == 200
+    assert server.queue[server.pos]["file"] == "bulk/1500.mp3"
 
 
 def test_stopped_player_has_no_now_playing(server):

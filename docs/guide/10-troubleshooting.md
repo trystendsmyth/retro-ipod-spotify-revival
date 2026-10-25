@@ -16,7 +16,7 @@ Logs: `journalctl -u <service> -b --no-pager | tail -50` with service `click`,
 | Rolling / black-and-white picture | NTSC vs PAL mismatch: re-run installer with the other `TV_NORM`. |
 | No **Music on iPod** in the menu | It is hidden until MPD has at least one song: copy files to `/srv/music`, then **Settings -> Update Music**. Check `systemctl status spotifypod-mpd`. Not installed with `LOCAL_MUSIC=0`. |
 | **Update Music** says "MPD not running" | `journalctl -u spotifypod-mpd -b --no-pager`; the config is `/var/lib/spotifypod/mpd/mpd.conf`. |
-| A song is missing from Music on iPod | Files copied with plain `rsync -a` or `scp` keep your computer's permissions: run `chmod -R a+rX /srv/music`, then **Update Music**. The format must be one MPD decodes; protected `.m4p` files never play. |
+| Files copied but missing after **Update Music** | Files copied with plain `rsync -a` or `scp` keep your computer's permissions, and MPD (user `spotifypod`) can't read files only you can read. Run `chmod -R a+rX /srv/music` on the Pi, then **Update Music**. Also: the format must be one MPD decodes; protected `.m4p` files never play. |
 | A compilation shows up under many artists | Menus group by the album artist tag; set one (e.g. "Various Artists") on every track, then **Update Music**. |
 | Haptics continue at end of list | Known sPot behaviour: haptics follow the finger, not the UI. |
 | Random reboots | Battery too small or long BAT wires to the PowerBoost; low battery (red LBO LED). |

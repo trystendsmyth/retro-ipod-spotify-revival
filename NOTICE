@@ -32,6 +32,9 @@ Modifications made in retro-ipod-spotify-revival (2026), per Apache-2.0 section 
     /etc/spotifypod/install.env for it.
   - install/install.sh: comitup from comitup's own apt repository (COMITUP_SOURCE),
     apt-source package pinned by SHA256.
+  - frontend/local_player.py: longer timeout for library calls (MPD_LIBRARY_TIMEOUT);
+    long lists queue a 200-song window around the chosen song.
+  - docs/spotify-callback.html, docs/README.md: relay stability notes.
 
 Third-party material:
   - docs/images/reference/raspberrypi-zero2-pad-diagram.png: Raspberry Pi Ltd,
