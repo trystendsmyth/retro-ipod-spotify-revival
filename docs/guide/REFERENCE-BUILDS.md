@@ -67,10 +67,10 @@ that the transistor and resistors sit on a small SOT-23 adapter.
 * the haptic driver uses a 1 kΩ base resistor and an MMBT3904;
 * the click wheel data line is on GPIO 5 (`#define DATA_PIN 5`), not GPIO 25.
 
-[3D-printed parts on Thingiverse](https://www.thingiverse.com/thing:4789155): base plate,
-key-press extension and an optional stand. **Licence not verified:** Thingiverse blocked
-automated checks on 2026-10-24. Read the licence on that page before printing or reusing
-the parts.
+[3D-printed parts on Thingiverse](https://www.thingiverse.com/thing:4789155)
+("Spotifypod base plate and holder" by rsappia): base plate, key-press extension and an
+optional stand. Licensed **Creative Commons - Attribution - Non-Commercial**: credit
+rsappia, and don't use them commercially. The files aren't included in this repository.
 
 ## SpotiPod by Sean (Shogan.tech)
 

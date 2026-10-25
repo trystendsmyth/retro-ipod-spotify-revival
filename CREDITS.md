@@ -28,7 +28,7 @@ diagrams from these are included in this repository.
 | **Sean (Shogan.tech)** | SpotiPod build log (Pi Zero W, Adafruit #911 composite display) and a post on wiring the #911 to a Pi Zero | [Build log](https://www.shogan.co.uk/builds/spotipod-spotify-streaming-device-from-an-ipod-classic/), [2" TFT post](https://www.shogan.co.uk/builds/tiny-2-tft-composite-video-on-raspberry-pi-zero/) |
 | **Benjamin Stallings** | Beginner-oriented sPot wiring diagram (Nov 2022) | [Imgur](https://imgur.com/a/epvkWsR) |
 | **Kakoub** | Community wiring diagram, re-hosted with credit on Shogan.tech's build log | [Hackaday.io profile](https://hackaday.io/Kakoub) |
-| **Ricardo Sappia** | 3D-printed parts for the SpotifyPod (base plate, key-press extension, stand). Licence **not yet verified**: Thingiverse blocked automated checks on 2026-10-24 | [Thingiverse](https://www.thingiverse.com/thing:4789155) |
+| **Ricardo Sappia** (rsappia) | "Spotifypod base plate and holder": 3D-printed base plate, key-press extension and stand. Creative Commons - Attribution - Non-Commercial; not included in this repository | [Thingiverse](https://www.thingiverse.com/thing:4789155) |
 
 ## Third-party software the installer sets up
 
