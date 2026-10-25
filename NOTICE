@@ -35,6 +35,10 @@ Modifications made in retro-ipod-spotify-revival (2026), per Apache-2.0 section 
   - frontend/local_player.py: longer timeout for library calls (MPD_LIBRARY_TIMEOUT);
     long lists queue a 200-song window around the chosen song.
   - docs/spotify-callback.html, docs/README.md: relay stability notes.
+  - docs/wiring/src/schematics.py, theme.py (new), requirements.txt (new): white
+    background, a "-dark" variant of every schematic, reproducible output from pinned
+    versions; docs/wiring/0*-dark.svg|png (new); guide chapters 5-7 and
+    docs/wiring/README.md show light/dark diagrams with <picture>.
 
 Third-party material:
   - docs/images/reference/raspberrypi-zero2-pad-diagram.png: Raspberry Pi Ltd,

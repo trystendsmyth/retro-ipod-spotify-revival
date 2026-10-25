@@ -1,6 +1,9 @@
 # 5. Click wheel
 
-Diagram: [../wiring/01-click-wheel.svg](../wiring/01-click-wheel.svg)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../wiring/01-click-wheel-dark.svg">
+  <img alt="Schematic: click wheel FPC pins 1 VCC, 2 CLOCK, 6 DATA and 8 GND wired to Pi header pins 1 (3V3), 16 (GPIO23), 22 (GPIO25) and 6 (GND)" src="../wiring/01-click-wheel.svg">
+</picture>
 
 ## Get the click wheel out
 

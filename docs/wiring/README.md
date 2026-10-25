@@ -5,19 +5,43 @@ All diagrams are generated from source in
 so they can be corrected and re-rendered:
 
 ```bash
-pip install "schemdraw[matplotlib]==0.23" wireviz==0.4.1   # plus graphviz (apt install graphviz)
+pip install -r docs/wiring/src/requirements.txt   # plus graphviz (apt install graphviz)
 python3 docs/wiring/src/schematics.py
 wireviz docs/wiring/src/harness.yml -o docs/wiring && rm -f docs/wiring/harness.html
 ```
 
 ## Schematics (standard symbols)
 
-| Sheet | |
-|---|---|
-| Click wheel to Pi | ![](01-click-wheel.svg) |
-| Haptic driver | ![](02-haptic-driver.svg) |
-| Composite display | ![](03-composite-display.svg) |
-| Power | ![](04-power.svg) |
+Each sheet has a light and a dark version; the page shows the one that matches your
+theme.
+
+### Click wheel to Pi
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="01-click-wheel-dark.svg">
+  <img alt="Schematic: click wheel FPC pins 1 VCC, 2 CLOCK, 6 DATA and 8 GND wired to Pi header pins 1 (3V3), 16 (GPIO23), 22 (GPIO25) and 6 (GND)" src="01-click-wheel.svg">
+</picture>
+
+### Haptic driver
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="02-haptic-driver-dark.svg">
+  <img alt="Schematic: Pi GPIO26 (pin 37) through 220 ohm R1 to the base of 2N3904 Q1, which switches the vibration motor to +5V; 1N4148 flyback diode D1 across the motor" src="02-haptic-driver.svg">
+</picture>
+
+### Composite display
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="03-composite-display-dark.svg">
+  <img alt="Schematic: Pi TV and GND to the Adafruit 911 video and video ground pins; display V+ to +5V and its power ground to GND" src="03-composite-display.svg">
+</picture>
+
+### Power
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="04-power-dark.svg">
+  <img alt="Schematic: USB charger feeding the Li-ion cell and the PowerBoost 1000 Basic BAT input; hold switch from EN to ground; PowerBoost 5V and GND out to the Pi, display and motor" src="04-power.svg">
+</picture>
 
 ## Harness (WireViz)
 
