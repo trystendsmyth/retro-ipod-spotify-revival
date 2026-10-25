@@ -292,7 +292,7 @@ def title_of(song: dict) -> str:
 
 # Menus group by album artist, so a compilation stays one album and two albums with the
 # same name stay apart. MPD itself falls back to the artist tag when a file has no album
-# artist (checked on MPD 0.23.12 and 0.24.4), for both `list` and `find`.
+# artist, for both `list` and `find`.
 def artists() -> list[str]:
     return _values(_call(lambda c: c.list("albumartist"), library=True), "albumartist")
 

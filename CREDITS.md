@@ -56,5 +56,4 @@ repository.
 | [Adafruit #1905 Mini LiPo charger](https://www.adafruit.com/product/1905) | 100 mA default, 500 mA jumper |
 | [Spotify Web API: February 2026 migration guide](https://developer.spotify.com/documentation/web-api/tutorials/february-2026-migration-guide) | Development Mode limits and removed endpoints |
 | go-librespot `CROSS_COMPILE.md` | `armv6_rpi` build is for Pi 1 / Zero |
-| [MPD user manual](https://mpd.readthedocs.io/en/stable/user.html) and Debian's `mpd.service` | `mpd.conf` settings, `--systemd` unit; checked against MPD 0.23.12 (Bookworm) and 0.24.4 (Trixie) |
-| comitup issues [#234](https://github.com/davesteele/comitup/issues/234), [#267](https://github.com/davesteele/comitup/issues/267), [#270](https://github.com/davesteele/comitup/issues/270) and its [apt repository page](https://davesteele.github.io/comitup/ppa.html) | why the installer uses comitup's own repository |
+| [MPD user manual](https://mpd.readthedocs.io/en/stable/user.html) and Debian's `mpd.service` | `mpd.conf` settings, `--systemd` unit |

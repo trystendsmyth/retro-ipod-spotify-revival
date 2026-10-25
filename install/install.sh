@@ -144,12 +144,10 @@ if ! apt-get install -y libpigpio-dev 2>/dev/null; then
   fi
 fi
 
-# Comitup (Wi-Fi setup hotspot). Debian/Raspbian ship it for armhf and arm64, but
-# Bookworm's 1.38 crashes on start with Bookworm's python3-networkmanager 2.2-2
-# (comitup issues #234, #267) and Trixie's 1.43 lacks the fix for #270. comitup's own
-# apt repo carries 1.47.1 and python3-networkmanager 2.2-3 for both releases.
-# COMITUP_SOURCE=upstream (default) adds that repo via its apt-source package, pinned
-# by SHA256; COMITUP_SOURCE=debian uses the distribution package only.
+# Comitup (Wi-Fi setup hotspot). COMITUP_SOURCE=upstream (default) adds comitup's own
+# apt repo via its apt-source package, pinned by SHA256: it has the current comitup and
+# python3-networkmanager for Bookworm and Trixie. COMITUP_SOURCE=debian uses the
+# distribution package only.
 if [[ "${COMITUP_SOURCE}" == "upstream" ]]; then
   echo "==> comitup apt source (${COMITUP_APT_SOURCE_URL})"
   CT_TMP="$(mktemp -d)"

@@ -1,12 +1,8 @@
 # Reference builds
 
-Other people's builds of this project, with photos you can follow while you work. This
-page only links to them: their photos belong to their authors, so none are copied or
-embedded here. Each entry says what the linked page shows and how that build differs from
-this guide.
-
-Links checked on **2026-10-24**. The descriptions come from each page's own captions and
-text as read that day.
+Other people's builds of this project, with photos you can follow while you work. The
+photos belong to their authors, so this page links to them. Each entry says what the
+linked page shows and how that build differs from this guide.
 
 ## sPot by Guy Dupont
 
@@ -22,11 +18,8 @@ composite display and the 4th-gen click wheel.
   * [Spotify Streaming on a modded 17-year-old iPod Classic](https://youtube.com/watch?v=ZxdhG1OhVng)
     (January 2021, 16 min): the first video of the build.
   * [Spotify iPod pt. 2: FAQ's and Upgrades!](https://youtube.com/watch?v=q0pUPab7Rms)
-    (March 2021, 24 min): according to the first video's description, FAQ answers,
-    hardware upgrades (headphone jack, USB-C) and a gaming demo.
-
-  These video summaries come from the titles and descriptions, not from watching the
-  videos.
+    (March 2021, 24 min): FAQ answers, hardware upgrades (headphone jack, USB-C) and a
+    gaming demo.
 * [Log: "Wiring!"](https://hackaday.io/project/177034/log/189343-wiring) (February 2021).
   The original wiring diagram, which this repository also keeps as
   `.docs/sPot_schematic.png`.
@@ -92,9 +85,6 @@ The same display approach as this guide: a Pi Zero W driving a 2-inch composite 
   (March 2021). Wiring and configuring the Adafruit #911 on a Pi Zero, powered from a
   PowerBoost 1000 Basic.
 
-Sean's click-wheel test tweet, linked from Guy's "Ricardo's Alternate Build" log, has been
-deleted by its author. The videos on the build log show the same test.
-
 **Differences from this build:** the post sets up the display with `/boot/config.txt`
 overscan settings from 2021. This guide uses KMS composite (chapter 4).
 
@@ -132,20 +122,10 @@ From the discussion on the [sPot project page](https://hackaday.io/project/17703
   ("How I got everything working", sPot issue #69, 2022–2024). The software steps there
   are outdated; this guide replaces them.
 
-## Adding photos later
+## Contributing photos
 
-* **Your own photos** can go in `docs/images/builds/` under this repository's licence.
-  One photo per guide chapter, taken at its **Check** step, works best.
-* **Other people's photos** need the author's written permission. Record it in
-  `CREDITS.md` with who gave it, the date, which images and the terms. Caption each photo
-  with the author's name and a link to the original.
-
-### Contributing photos
-
-A request you can send:
-
-> Hi <name> — I maintain retro-ipod-spotify-revival, an updated build guide for sPot
-> (https://github.com/trystendsmyth/retro-ipod-spotify-revival). Your <page> photos of
-> <what> would really help builders. May I include <specific photos> in the repo's docs,
-> credited to you with a link back to your post? The repo is Apache-2.0; I'd note your
-> photos stay yours and are used with permission.
+* **Photos of your own build** can go in `docs/images/builds/` under this repository's
+  licence. One photo per guide chapter, taken at its **Check** step, works best.
+* **Other people's photos** need the author's written permission, recorded in
+  `CREDITS.md` (who, date, which images, terms). Caption each one with the author's name
+  and a link to the original.
