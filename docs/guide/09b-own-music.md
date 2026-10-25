@@ -63,7 +63,8 @@ the number of songs, the new music is under **Music on iPod**.
 * **Music on iPod -> Artists -> albums -> songs**, **Albums**, **Songs** and
   **Playlists** work like the Spotify menus.
 * Selecting a song plays it and queues the rest of that album or list, so next/previous
-  move through the album.
+  move through the album. In very long lists such as **Songs**, the 200 songs around the
+  one you chose are queued.
 * **One source at a time:** starting your own music pauses Spotify, and starting Spotify
   pauses your music. If someone picks **iPod** in the Spotify app on a phone and presses
   play, your music pauses too. Now Playing always shows whichever is playing.
