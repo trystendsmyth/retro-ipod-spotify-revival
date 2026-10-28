@@ -17,9 +17,24 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt-get update && sudo apt-get install -y shellcheck
-      - run: shellcheck -S warning install/install.sh install/bin/*.sh tests/*.sh
+      # alsa-utils: aplay checks that the asound.conf chain parses and plays
+      - run: sudo apt-get update && sudo apt-get install -y shellcheck alsa-utils
+      - run: shellcheck -S warning install/install.sh install/bin/*.sh tests/*.sh tests/integration/*.sh
       - run: bash tests/test_configure_display.sh
+      - run: bash tests/test_configure_audio.sh
+      - run: bash tests/test_check_pins.sh
+  install:
+    # install/install.sh end to end in Debian containers with systemd, on arm64 like the
+    # Zero 2 W image (no Pi hardware): re-runs with other options, the setup portal, and
+    # output switching on the installed PipeWire. See tests/integration/run-installer.sh.
+    runs-on: ubuntu-24.04-arm
+    strategy:
+      fail-fast: false
+      matrix:
+        debian: [bookworm, trixie]
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash tests/integration/run-installer.sh ${{ matrix.debian }}
   diagrams:
     # Re-render every diagram with the pinned toolchain and fail if the committed files
     # differ. Runs in a plain ubuntu:24.04 container so fonts and graphviz match the
@@ -40,7 +55,7 @@ jobs:
           export PATH="/tmp/venv/bin:$PATH"
           python docs/wiring/src/schematics.py
           python docs/wiring/src/header_map.py
-          for f in clickwheel haptic display power; do
+          for f in clickwheel haptic display power audio; do
             wireviz -f ps "docs/wiring/src/harness-$f.yml" -o docs/wiring
           done
       - name: Committed diagrams match a fresh render
@@ -53,7 +68,8 @@ jobs:
         run: |
           curl -fsSL https://github.com/joan2937/pigpio/archive/refs/tags/v79.tar.gz | tar xz
           make -C pigpio-79 libpigpio.so
-      - name: Compile click.c (default and st7789 pin maps)
+      - name: Compile click.c (default, wired audio and st7789 pin maps)
         run: |
           gcc -Wall -Werror=implicit-function-declaration -pthread -O2 -Ipigpio-79 -Lpigpio-79 -o click clickwheel/click.c -lpigpio -lrt
+          gcc -Wall -Werror=implicit-function-declaration -pthread -O2 -DI2S_AUDIO -Ipigpio-79 -Lpigpio-79 -o click-i2s clickwheel/click.c -lpigpio -lrt
           gcc -Wall -pthread -O2 -DDATA_PIN=5 -DNO_HAPTIC -Ipigpio-79 -Lpigpio-79 -o click5 clickwheel/click.c -lpigpio -lrt
