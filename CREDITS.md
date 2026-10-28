@@ -17,6 +17,7 @@ sPot Revival only exists because these people published their work.
 | **devgianlu and contributors** | go-librespot, the Spotify Connect player (including ARMv6 builds) | [GitHub](https://github.com/devgianlu/go-librespot) |
 | **joan2937** | pigpio | [GitHub](https://github.com/joan2937/pigpio) |
 | **Spotipy** maintainers | Spotify Web API client | [GitHub](https://github.com/spotipy-dev/spotipy) |
+| **Liz Clark / Adafruit Industries** | CircuitPython TLV320DAC3100 driver (MIT): the register sequence in `install/bin/tlv320.py` follows it | [GitHub](https://github.com/adafruit/Adafruit_CircuitPython_TLV320) |
 
 ## Other builds and diagrams (linked, not copied)
 
@@ -29,6 +30,8 @@ diagrams from these are included in this repository.
 | **Benjamin Stallings** | Beginner-oriented sPot wiring diagram (Nov 2022) | [Imgur](https://imgur.com/a/epvkWsR) |
 | **Kakoub** | Community wiring diagram, re-hosted with credit on Shogan.tech's build log | [Hackaday.io profile](https://hackaday.io/Kakoub) |
 | **Ricardo Sappia** (rsappia) | "Spotifypod base plate and holder": 3D-printed base plate, key-press extension and stand. Creative Commons - Attribution - Non-Commercial; not included in this repository | [Thingiverse](https://www.thingiverse.com/thing:4789155) |
+| **Guy Dupont** | "Round 2: USB-C, wired audio, and RetroPie" log and video, and project comments on reusing the original headphone jack | [Hackaday.io log](https://hackaday.io/project/177034/log/190079-round-2-usb-c-wired-audio-and-retropie) |
+| **Pierre-Loup M.**, **tanagram27**, **Phil Karza** | Hackaday comments on I2S DACs in the case, and that a line-level PCM5102 needs a headphone amplifier | [Hackaday discussion](https://hackaday.io/project/177034-spot-spotify-in-a-4th-gen-ipod-2004) |
 
 ## Third-party software the installer sets up
 
@@ -57,3 +60,11 @@ repository.
 | [Spotify Web API: February 2026 migration guide](https://developer.spotify.com/documentation/web-api/tutorials/february-2026-migration-guide) | Development Mode limits and removed endpoints |
 | go-librespot `CROSS_COMPILE.md` | `armv6_rpi` build is for Pi 1 / Zero |
 | [MPD user manual](https://mpd.readthedocs.io/en/stable/user.html) and Debian's `mpd.service` | `mpd.conf` settings, `--systemd` unit |
+| [Adafruit #6309](https://www.adafruit.com/product/6309), its [learn guide](https://learn.adafruit.com/adafruit-tlv320dac3100-i2s-dac/pinouts) and [board files](https://github.com/adafruit/Adafruit-TLV320DAC3100-I2S-DAC-PCB) | DAC pads, 3.3-5 V VIN, AC-coupled HPL/HPR, 10 kΩ RST pull-up |
+| TI TLV320DAC3100 datasheet (SLAS671) | PLL and divider limits, headphone volume table 6-24 |
+| [Raspberry Pi device tree overlays README](https://github.com/raspberrypi/linux/blob/rpi-6.12.y/arch/arm/boot/dts/overlays/README) and `sound/soc/bcm/rpi-simple-soundcard.c` | `i2s-dac` overlay; its fixed 64 x fs bit clock and `snd_rpi_rpi_dac` card name |
+| [pigpio C interface](https://abyz.me.uk/rpi/pigpio/cif.html) (`gpioCfgClock`) | pigpio times itself from the PCM block by default, which I2S needs |
+| [WirePlumber ALSA configuration](https://pipewire.pages.freedesktop.org/wireplumber/daemon/configuration/alsa.html) | `session.suspend-timeout-seconds = 0` |
+| [iFixit guide 388](https://www.ifixit.com/Guide/iPod+4th+Generation+or+Photo+Headphone+Jack+Replacement/388) | the 4th-gen jack board: jack, hold switch and piezo on one board, two T6 screws |
+| Rockbox `firmware/export/config/ipod4g.h` | the iPod 4G reads a headphone-detect line |
+| Adafruit product pages for #6250 and #3678, TI PCM5102A and NXP UDA1334ATS datasheets | why a line-level DAC isn't used for earbuds |

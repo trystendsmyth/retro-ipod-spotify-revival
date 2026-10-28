@@ -3,7 +3,9 @@
 Every diagram is rendered twice: "light" (the plain file names, white background) and
 "dark" (a "-dark" suffix, GitHub dark background). Wire colours match the harness wire
 colour codes: VCC/+5V red (RD), clock violet (VT), data turquoise (TQ), haptic green (GN),
-video yellow (YE), ground black (BK, drawn in the foreground colour).
+video and I2S data yellow (YE), I2C SDA blue (BU), I2C SCL orange (OG), DAC reset brown
+(BN), I2S bit clock pink (PK), I2S word select grey (GY), jack detect light blue (LB),
+ground black (BK, drawn in the foreground colour).
 """
 
 LIGHT = {
@@ -16,6 +18,12 @@ LIGHT = {
     "teal": "#16a085",
     "green": "#1e8449",
     "yellow": "#b7950b",
+    "blue": "#1f5fa8",
+    "orange": "#c0620f",
+    "brown": "#7b4a1e",
+    "pink": "#c2185b",
+    "grey": "#5d6d7e",
+    "lightblue": "#2e86c1",
     "on_wire": "#ffffff",   # text on a wire-coloured fill
     "on_fg": "#ffffff",     # text on a foreground-coloured fill
 }
@@ -30,6 +38,12 @@ DARK = {
     "teal": "#56d4bc",
     "green": "#7ee787",
     "yellow": "#f2cc60",
+    "blue": "#79c0ff",
+    "orange": "#ffa657",
+    "brown": "#d2a679",
+    "pink": "#ff9bce",
+    "grey": "#b1bac4",
+    "lightblue": "#a5d6ff",
     "on_wire": "#0d1117",
     "on_fg": "#0d1117",
 }

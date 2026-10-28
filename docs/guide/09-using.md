@@ -4,7 +4,7 @@
   **Play/pause:** play button. **Next / previous track:** forward / back buttons.
 * **Volume:** on Now Playing, turn the wheel; the bar shows volume for two seconds.
 * **Settings -> About** shows the software version, the iPod's IP address, the display
-  setting and the versions of go-librespot and MPD.
+  setting, the versions of go-librespot and MPD, and the active audio output.
 * **Settings -> Sync Library** refreshes playlists, saved tracks, albums and artists.
 * **Settings -> Update Music** rescans your own music files ([chapter 9b](09b-own-music.md)).
 * **Settings -> Shut Down / Reboot.**
@@ -13,14 +13,17 @@
 
 ## Audio
 
-Open `http://ipod.local` on your phone:
+* **Headphone jack:** plug in earbuds. With no Bluetooth device connected, sound plays
+  from the jack ([chapter 6b](06b-wired-audio.md)).
+* **Bluetooth headphones/speaker:** open `http://ipod.local` on your phone, put them in
+  pairing mode, **Scan**, **Pair & connect**. Sound moves to them, and they reconnect
+  automatically on later boots.
+* **Switching:** **Settings -> Output** on the iPod, or the **Output** card on the setup
+  page, lists **Headphones** and your paired Bluetooth devices. With jack detect wired,
+  plugging in switches to the jack and unplugging switches back to Bluetooth.
 
-* **Bluetooth headphones/speaker:** put them in pairing mode, **Scan**, **Pair & connect**.
-  They reconnect automatically on later boots.
-* **Wired (USB or I2S DAC):** re-run the installer with `AUDIO_BACKEND=alsa`. The 4th-gen
-  headphone jack is not connected to anything in this build.
-
-Your own music files (chapter 9b) play to the same output.
+Your own music files (chapter 9b) play to the same output. Volume on the wheel goes up to
+the jack's limit (`WIRED_GAIN_DB`, chapter 6b).
 
 ## What Spotify does not allow
 

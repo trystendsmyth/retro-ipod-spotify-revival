@@ -3,7 +3,7 @@
 ## Parts (the original sPot hardware)
 
 These are the parts from the [sPot Hackaday components list](https://hackaday.io/project/177034/components),
-with the one addition this guide makes marked.
+with this guide's additions marked.
 
 | Qty | Part | Notes |
 |---|---|---|
@@ -17,6 +17,7 @@ with the one addition this guide makes marked.
 | 1 | 2N3904 NPN transistor | Drives the motor. |
 | 1 | 220 ohm resistor | Transistor base resistor. |
 | 1 | **1N4148 diode (added)** | Flyback diode across the motor; Guy Dupont recommended adding one after the original build. |
+| 1 | **Adafruit TLV320DAC3100 I2S DAC, [#6309](https://www.adafruit.com/product/6309) (added)** | Headphone audio through the iPod's own jack (chapter 6b). Has a headphone amplifier for 16-32 Ω earbuds. 33.7 x 25.4 x 7.1 mm. |
 | 1 | 0.5 mm pitch FPC breakout, 8+ pins | For the click wheel ribbon. |
 | 1 | microSD card, 16-32 GB+ | A spare card lets you keep a known-good image. |
 | 1 | micro-USB power supply for the Pi | For chapters 3-6, before the battery is wired. |
@@ -32,7 +33,8 @@ with the one addition this guide makes marked.
 
 Fine-tip soldering iron, thin solder, flux, 30 AWG wire (kynar / wire-wrap is ideal), heat
 shrink, Kapton tape, multimeter, flush cutters, iPod opening tools / guitar picks,
-tweezers, a small piece of perfboard for the haptic driver. Optional: hot glue or a
+tweezers, a small piece of perfboard for the haptic driver, a 3.5 mm male-to-male audio
+cable (to find the headphone jack's contacts in chapter 6b). Optional: hot glue or a
 3D-printed tray (see Ricardo Sappia's build).
 
 Leave the wires to the Pi long (10-15 cm) while testing on the desk; you trim them to
