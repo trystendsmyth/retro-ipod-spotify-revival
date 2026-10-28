@@ -7,7 +7,8 @@
 # DISPLAY_PROFILE=composite (original sPot Adafruit #911 TV display, default),
 # ARMv6 support, a pinned + checksummed go-librespot download, pin defines
 # passed to the compiler instead of editing click.c, MPD for music files on the SD
-# card (LOCAL_MUSIC) and comitup from its own repo (COMITUP_SOURCE). See NOTICE.
+# card (LOCAL_MUSIC), comitup from its own repo (COMITUP_SOURCE) and wired audio
+# through an I2S DAC (WIRED_AUDIO). See NOTICE.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -18,19 +19,41 @@ INSTALL_ROOT="${INSTALL_ROOT:-/opt/spotifypod}"
 DATA_DIR="${DATA_DIR:-/var/lib/spotifypod}"
 CONFIG_DIR="${CONFIG_DIR:-/etc/spotifypod}"
 SPOTIFYPOD_USER="${SPOTIFYPOD_USER:-spotifypod}"
-# Audio: pulseaudio (PipeWire BT default) or alsa (I2S/USB DAC)
+# Audio: pulseaudio (PipeWire: headphone jack and Bluetooth, switchable; default) or
+# alsa (one wired DAC, no Bluetooth, lightest on the Zero W)
 AUDIO_BACKEND="${AUDIO_BACKEND:-pulseaudio}"
+# Wired headphones: i2s = TLV320DAC3100 DAC (Adafruit #6309) on I2S into the iPod's
+# headphone jack (docs/guide/06b-wired-audio.md); none = no DAC (Bluetooth only, or a
+# USB DAC with AUDIO_BACKEND=alsa).
+WIRED_AUDIO="${WIRED_AUDIO:-i2s}"
+# Headphone level at full wheel volume, in dB (0 to -35), set in the DAC's analog stage.
+WIRED_GAIN_DB="${WIRED_GAIN_DB:--20}"
+# The DAC's RST pin (BCM GPIO). I2S is on GPIO 18/19/21 and I2C on GPIO 2/3, both fixed.
+DAC_RESET_GPIO="${DAC_RESET_GPIO:-17}"
+# ALSA card for AUDIO_BACKEND=alsa (aplay -l). With WIRED_AUDIO=none it is card 0; set
+# ALSA_CARD to your USB DAC's name if that's wrong.
+DAC_OVERLAY="i2s-dac"
+if [[ "${WIRED_AUDIO}" == "i2s" ]]; then
+  ALSA_CARD="${ALSA_CARD:-sndrpirpidac}"
+else
+  ALSA_CARD="${ALSA_CARD:-0}"
+fi
+# Optional headphone-jack plug detect (BCM GPIO, pulled up) and the level read when a
+# plug is in. Empty = no jack detect.
+JACK_DETECT_GPIO="${JACK_DETECT_GPIO:-}"
+JACK_PLUGGED_LEVEL="${JACK_PLUGGED_LEVEL:-0}"
 # Display: "composite" = original sPot build (Adafruit #911 NTSC/PAL TFT on the
 # Pi's composite output); "st7789" = Ricardo Sappia's Waveshare 2" SPI build.
 DISPLAY_PROFILE="${DISPLAY_PROFILE:-composite}"
 # Composite TV standard (composite profile only): NTSC, PAL, PAL60, NTSC-J, ...
 TV_NORM="${TV_NORM:-NTSC}"
-# Display GPIOs for mipi-dbi-spi (st7789 profile only). Defaults follow Ricardo Sappia's Waveshare build
-# (DC=24 / pin 18, RESET=25 / pin 22, backlight GPIO 18 / pin 12).
+# Display GPIOs for mipi-dbi-spi (st7789 profile only). DC and RESET follow Ricardo
+# Sappia's Waveshare build (DC=24 / pin 18, RESET=25 / pin 22). His backlight was on
+# GPIO 18, which wired audio needs for I2S, so the default is GPIO 27 / pin 13.
 # Set BL_GPIO="" if your backlight is hard-wired to 3.3V instead.
 DC_GPIO="${DC_GPIO:-24}"
 RESET_GPIO="${RESET_GPIO:-25}"
-BL_GPIO="${BL_GPIO-18}"
+BL_GPIO="${BL_GPIO-27}"
 # Click wheel DATA pin (BCM), passed to the compiler as -DDATA_PIN=... (click.c is not edited).
 # Original sPot (composite) wiring uses 25; the st7789 profile defaults to 5 because
 # GPIO 25 is that display's RESET line.
@@ -70,6 +93,21 @@ case "${DISPLAY_PROFILE}" in
   composite|st7789) ;;
   *) echo "ERROR: DISPLAY_PROFILE must be 'composite' or 'st7789' (got '${DISPLAY_PROFILE}')" >&2; exit 1 ;;
 esac
+case "${AUDIO_BACKEND}" in
+  pulseaudio|alsa) ;;
+  *) echo "ERROR: AUDIO_BACKEND must be 'pulseaudio' or 'alsa' (got '${AUDIO_BACKEND}')" >&2; exit 1 ;;
+esac
+case "${WIRED_AUDIO}" in
+  i2s|none) ;;
+  *) echo "ERROR: WIRED_AUDIO must be 'i2s' or 'none' (got '${WIRED_AUDIO}')" >&2; exit 1 ;;
+esac
+if [[ ! "${WIRED_GAIN_DB}" =~ ^-?[0-9]+(\.[0-9]+)?$ ]] || awk -v d="${WIRED_GAIN_DB}" 'BEGIN{exit !(d > 0 || d < -35)}'; then
+  echo "ERROR: WIRED_GAIN_DB must be a number of dB from 0 to -35 (got '${WIRED_GAIN_DB}')" >&2; exit 1
+fi
+case "${JACK_PLUGGED_LEVEL}" in
+  0|1) ;;
+  *) echo "ERROR: JACK_PLUGGED_LEVEL must be 0 or 1 (got '${JACK_PLUGGED_LEVEL}')" >&2; exit 1 ;;
+esac
 case "${LOCAL_MUSIC}" in
   0|1) ;;
   *) echo "ERROR: LOCAL_MUSIC must be 0 or 1 (got '${LOCAL_MUSIC}')" >&2; exit 1 ;;
@@ -80,23 +118,16 @@ case "${COMITUP_SOURCE}" in
 esac
 
 EFFECTIVE_DATA_PIN="${CLICK_DATA_PIN}"
+# --- Pin sanity check: no GPIO used twice (click wheel, display, wired audio) ---
 if [[ "${DISPLAY_PROFILE}" == "st7789" ]]; then
-# --- Pin sanity check: display pins must not collide with the click wheel ---
-for p in "${DC_GPIO}" "${RESET_GPIO}" "${BL_GPIO}"; do
-  [[ -z "${p}" ]] && continue
-  for c in "${CLICK_CLOCK_PIN}" "${EFFECTIVE_DATA_PIN}" "${CLICK_HAPTIC_PIN}"; do
-    if [[ "${p}" == "${c}" ]]; then
-      echo "ERROR: display GPIO ${p} collides with a click wheel pin (clock=${CLICK_CLOCK_PIN}, data=${EFFECTIVE_DATA_PIN}, haptic=${CLICK_HAPTIC_PIN})." >&2
-      echo "       Adjust DC_GPIO / RESET_GPIO / BL_GPIO / CLICK_DATA_PIN to match your wiring." >&2
-      exit 1
-    fi
-  done
-done
-for p in "${DC_GPIO}" "${RESET_GPIO}" "${BL_GPIO}"; do
-  [[ -z "${p}" ]] && continue
-  case "${p}" in 8|9|10|11) echo "ERROR: GPIO ${p} is the SPI0 bus itself (CE0/MISO/MOSI/SCLK)." >&2; exit 1 ;; esac
-done
+  DISPLAY_PINS=(DC_GPIO="${DC_GPIO}" RESET_GPIO="${RESET_GPIO}" BL_GPIO="${BL_GPIO}")
+else
+  DISPLAY_PINS=()
 fi
+env CLICK_CLOCK_PIN="${CLICK_CLOCK_PIN}" CLICK_DATA_PIN="${EFFECTIVE_DATA_PIN}" CLICK_HAPTIC_PIN="${CLICK_HAPTIC_PIN}" \
+  DISPLAY_PROFILE="${DISPLAY_PROFILE}" "${DISPLAY_PINS[@]}" \
+  WIRED_AUDIO="${WIRED_AUDIO}" DAC_RESET_GPIO="${DAC_RESET_GPIO}" JACK_DETECT_GPIO="${JACK_DETECT_GPIO}" \
+  bash "${SCRIPT_DIR}/bin/check-pins.sh" >/dev/null
 
 echo "==> Pin map"
 echo "    click wheel : clock=${CLICK_CLOCK_PIN} data=${EFFECTIVE_DATA_PIN} haptic=${CLICK_HAPTIC_PIN}"
@@ -104,6 +135,11 @@ if [[ "${DISPLAY_PROFILE}" == "st7789" ]]; then
   echo "    display     : st7789 dc=${DC_GPIO} reset=${RESET_GPIO} backlight=${BL_GPIO:-<hard-wired>} spi0 (mosi=10 sclk=11 ce0=8)"
 else
   echo "    display     : composite (${TV_NORM}) on the TV pad / AV jack"
+fi
+if [[ "${WIRED_AUDIO}" == "i2s" ]]; then
+  echo "    wired audio : TLV320DAC3100 i2s bclk=18 lrclk=19 dout=21, i2c sda=2 scl=3, reset=${DAC_RESET_GPIO}, jack-detect=${JACK_DETECT_GPIO:-<none>}"
+else
+  echo "    wired audio : none"
 fi
 
 echo "==> Installing packages"
@@ -114,7 +150,7 @@ apt-get install -y \
   xserver-xorg-core xserver-xorg-video-fbdev xserver-xorg-legacy xinit x11-xserver-utils \
   network-manager avahi-daemon polkitd \
   curl ca-certificates unzip rsync file fonts-dejavu-core \
-  pipewire pipewire-audio pipewire-alsa pipewire-pulse wireplumber dbus-user-session \
+  pipewire pipewire-audio pipewire-alsa pipewire-pulse wireplumber dbus-user-session pulseaudio-utils \
   libspa-0.2-bluetooth bluez \
   libogg-dev libvorbis-dev libflac-dev libmpg123-dev libasound2-dev libpulse-dev \
   gcc make
@@ -177,6 +213,8 @@ if ! id -u "${SPOTIFYPOD_USER}" >/dev/null 2>&1; then
 fi
 usermod -aG audio,video "${SPOTIFYPOD_USER}" 2>/dev/null || true
 getent group bluetooth >/dev/null && usermod -aG bluetooth "${SPOTIFYPOD_USER}" 2>/dev/null || true
+# gpio: read the jack-detect pin (pinctrl, /dev/gpiomem)
+getent group gpio >/dev/null && usermod -aG gpio "${SPOTIFYPOD_USER}" 2>/dev/null || true
 SPOTIFYPOD_UID="$(id -u "${SPOTIFYPOD_USER}")"
 # Start a systemd --user instance for this user at boot (pipewire, wireplumber,
 # pipewire-pulse live there), independent of any login session.
@@ -208,7 +246,10 @@ setcap 'cap_net_bind_service=+ep' "${INSTALL_ROOT}/venv/bin/python3" 2>/dev/null
   echo "WARN: setcap failed; portal may need to run as root or use authbind for port 80"
 
 echo "==> Compile click wheel binary"
-gcc -Wall -pthread -O2 -I/usr/local/include -L/usr/local/lib \
+# With the I2S DAC, pigpio must leave the PCM peripheral alone (see click.c).
+CLICK_CFLAGS=()
+[[ "${WIRED_AUDIO}" == "i2s" ]] && CLICK_CFLAGS+=(-DI2S_AUDIO)
+gcc -Wall -pthread -O2 -I/usr/local/include -L/usr/local/lib "${CLICK_CFLAGS[@]}" \
   -DCLOCK_PIN="${CLICK_CLOCK_PIN}" -DDATA_PIN="${CLICK_DATA_PIN}" -DHAPTIC_PIN="${CLICK_HAPTIC_PIN}" \
   -o "${INSTALL_ROOT}/bin/click" "${REPO_ROOT}/clickwheel/click.c" -lpigpio -lrt
 chmod 755 "${INSTALL_ROOT}/bin/click"
@@ -311,6 +352,45 @@ echo "==> Boot config (${DISPLAY_PROFILE})"
 DISPLAY_PROFILE="${DISPLAY_PROFILE}" TV_NORM="${TV_NORM}" DC_GPIO="${DC_GPIO}" RESET_GPIO="${RESET_GPIO}" BL_GPIO="${BL_GPIO}" \
   bash "${SCRIPT_DIR}/bin/configure-display.sh"
 
+echo "==> Wired audio (WIRED_AUDIO=${WIRED_AUDIO}, AUDIO_BACKEND=${AUDIO_BACKEND})"
+WIRED_AUDIO="${WIRED_AUDIO}" AUDIO_BACKEND="${AUDIO_BACKEND}" DAC_OVERLAY="${DAC_OVERLAY}" ALSA_CARD="${ALSA_CARD}" \
+  DAC_RESET_GPIO="${DAC_RESET_GPIO}" JACK_DETECT_GPIO="${JACK_DETECT_GPIO}" \
+  bash "${SCRIPT_DIR}/bin/configure-audio.sh"
+# The DAC is set up over I2C at boot (spotifypod-dac.service, tlv320.py).
+if [[ "${WIRED_AUDIO}" == "i2s" ]]; then
+  install -m 755 "${SCRIPT_DIR}/bin/tlv320.py" "${INSTALL_ROOT}/bin/tlv320.py"
+  echo i2c-dev > /etc/modules-load.d/spotifypod-i2c.conf
+else
+  rm -f "${INSTALL_ROOT}/bin/tlv320.py" /etc/modules-load.d/spotifypod-i2c.conf
+fi
+# WirePlumber: keep the DAC's clock running at 44.1 kHz. 0.4 (Bookworm) reads Lua from
+# main.lua.d, 0.5 (Trixie) SPA-JSON from wireplumber.conf.d and warns about Lua files.
+WP_LUA=/etc/wireplumber/main.lua.d/51-spotifypod-dac.lua
+WP_CONF=/etc/wireplumber/wireplumber.conf.d/51-spotifypod-dac.conf
+rm -f "${WP_LUA}" "${WP_CONF}"
+if [[ "${WIRED_AUDIO}" == "i2s" && "${AUDIO_BACKEND}" == "pulseaudio" ]]; then
+  if [[ -d /usr/share/wireplumber/main.lua.d ]]; then
+    install -D -m 644 "${SCRIPT_DIR}/config/wireplumber-dac.lua" "${WP_LUA}"
+  else
+    install -D -m 644 "${SCRIPT_DIR}/config/wireplumber-dac.conf" "${WP_CONF}"
+  fi
+fi
+# With alsa, go-librespot and MPD share the card through dmix. The spotifypod user's
+# PipeWire would otherwise open the same card, so it's masked for that user only.
+PW_MASK_DIR="${DATA_DIR}/.config/systemd/user"
+PW_UNITS=(pipewire.socket pipewire.service pipewire-pulse.socket pipewire-pulse.service wireplumber.service)
+if [[ "${AUDIO_BACKEND}" == "alsa" ]]; then
+  mkdir -p "${PW_MASK_DIR}"
+  for u in "${PW_UNITS[@]}"; do ln -sfn /dev/null "${PW_MASK_DIR}/${u}"; done
+  chown -R "${SPOTIFYPOD_USER}:${SPOTIFYPOD_USER}" "${DATA_DIR}/.config"
+else
+  for u in "${PW_UNITS[@]}"; do
+    if [[ -L "${PW_MASK_DIR}/${u}" && "$(readlink "${PW_MASK_DIR}/${u}")" == /dev/null ]]; then
+      rm -f "${PW_MASK_DIR}/${u}"
+    fi
+  done
+fi
+
 echo "==> App config.env"
 if [[ ! -f "${CONFIG_DIR}/config.env" ]]; then
   install -m 640 "${SCRIPT_DIR}/config/config.env.example" "${CONFIG_DIR}/config.env"
@@ -332,6 +412,11 @@ SPOTIFYPOD_VERSION=${SPOTIFYPOD_VERSION}
 DISPLAY_PROFILE=${DISPLAY_PROFILE}
 TV_NORM=${TV_NORM}
 AUDIO_BACKEND=${AUDIO_BACKEND}
+WIRED_AUDIO=${WIRED_AUDIO}
+WIRED_GAIN_DB=${WIRED_GAIN_DB}
+DAC_RESET_GPIO=${DAC_RESET_GPIO}
+JACK_DETECT_GPIO=${JACK_DETECT_GPIO}
+JACK_PLUGGED_LEVEL=${JACK_PLUGGED_LEVEL}
 GO_LIBRESPOT_VERSION=${GO_LIBRESPOT_VERSION}
 LOCAL_MUSIC=${LOCAL_MUSIC}
 MUSIC_DIR=${MUSIC_DIR}
@@ -411,6 +496,12 @@ if [[ "${LOCAL_MUSIC}" == "1" ]]; then
     > /etc/systemd/system/spotifypod-mpd.service
   chmod 644 /etc/systemd/system/spotifypod-mpd.service
 fi
+if [[ "${WIRED_AUDIO}" == "i2s" ]]; then
+  install -m 644 "${SCRIPT_DIR}/systemd/spotifypod-dac.service" /etc/systemd/system/spotifypod-dac.service
+else
+  systemctl disable spotifypod-dac.service 2>/dev/null || true
+  rm -f /etc/systemd/system/spotifypod-dac.service
+fi
 systemctl daemon-reload
 # Note: no pigpiod. click.c links libpigpio directly and owns the GPIO hardware
 # itself; a running daemon would fight it for the DMA/PCM peripherals.
@@ -418,6 +509,9 @@ systemctl disable --now pigpiod 2>/dev/null || true
 systemctl enable click.service go-librespot.service spotifypod.service spotifypod-portal.service
 if [[ "${LOCAL_MUSIC}" == "1" ]]; then
   systemctl enable spotifypod-mpd.service
+fi
+if [[ "${WIRED_AUDIO}" == "i2s" ]]; then
+  systemctl enable spotifypod-dac.service
 fi
 # Bluetooth speakers: adapter on at boot, radio unblocked
 systemctl enable bluetooth.service 2>/dev/null || true
@@ -449,7 +543,7 @@ echo "  2. Register the same redirect URI in the Spotify dashboard (docs/guide/0
 echo "  3. Display profile: ${DISPLAY_PROFILE}; click wheel clock=${CLICK_CLOCK_PIN} data=${EFFECTIVE_DATA_PIN} haptic=${CLICK_HAPTIC_PIN}"
 echo "  4. Reboot. First boot: join iPod hotspot QR / comitup, then Spotify Connect to 'iPod',"
 echo "     then open http://ipod.local to link the Web API library."
-echo "  AUDIO_BACKEND=${AUDIO_BACKEND}"
+echo "  AUDIO_BACKEND=${AUDIO_BACKEND} WIRED_AUDIO=${WIRED_AUDIO} (headphone level ${WIRED_GAIN_DB} dB)"
 if [[ "${LOCAL_MUSIC}" == "1" ]]; then
   echo "  Music on iPod: copy files to ${MUSIC_DIR}, then Settings -> Update Music"
 fi

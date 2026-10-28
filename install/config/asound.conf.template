@@ -1,0 +1,28 @@
+# retro-ipod-spotify-revival: written by install/install.sh for AUDIO_BACKEND=alsa.
+# Re-running the installer overwrites it; with AUDIO_BACKEND=pulseaudio it is removed.
+#
+# go-librespot and MPD both open "default". dmix mixes them onto the one card, so
+# neither gets "device busy" while the other holds it.
+
+pcm.!default {
+    type plug
+    slave.pcm "spotifypod_dmix"
+}
+
+pcm.spotifypod_dmix {
+    type dmix
+    ipc_key 5150
+    ipc_key_add_uid false
+    ipc_perm 0660
+    slave {
+        pcm "hw:CARD=__CARD__,DEV=0"
+        channels 2
+        # Spotify streams at 44.1 kHz: no resampling for it on the Zero W
+        rate 44100
+    }
+}
+
+ctl.!default {
+    type hw
+    card __CARD__
+}
