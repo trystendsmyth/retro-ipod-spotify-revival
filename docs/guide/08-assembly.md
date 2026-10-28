@@ -2,7 +2,7 @@
 
 Before anything goes into the case, run one full test on the desk from the battery: boot,
 Spotify plays, the wheel scrolls with haptics, **Settings -> Shut Down** works and the hold
-switch cuts power.
+switch cuts power. Then plug in a USB-C charger and check the iPod keeps playing.
 
 Photos from other builds: insulating the case with polyimide tape, hot glue on the joints
 and everything fitted in [Sean's SpotiPod](REFERENCE-BUILDS.md#spotipod-by-sean-shogantech);
@@ -44,7 +44,14 @@ The 4th-gen case is tight. Tips from builders in the Hackaday discussion:
 * Some builders desoldered or trimmed unused ports on the Zero to save height.
 * Insulate the Pi's underside and every joint with Kapton tape.
 * Trim wires to length now; keep the PowerBoost's BAT wires short.
-* Route the charging port through the old dock-connector opening.
+* **USB-C socket:** print the bracket for your case ([`hardware/`](../../hardware/README.md)),
+  screw the breakout to it, and push its bezel into the old dock-connector opening from
+  inside. Check a cable clicks in, then glue the bracket's base to the case with two-part
+  epoxy. Nothing on the case is cut or drilled.
+* Check the PowerBoost's LEDs (chapter 7) before closing the case; they can't be seen
+  afterwards.
+* Keep the PowerBoost off the cell: it gets warm while charging. Kapton tape between them
+  helps.
 * Screw the headphone jack board back in with its two T6 screws before closing; its wires
   go to the DAC and (hold switch) to the PowerBoost.
 * Put the DAC board near the top of the case, so the three wires to the jack and the eight

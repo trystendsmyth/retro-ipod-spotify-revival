@@ -42,3 +42,10 @@ next to each result.
 | 28 | `AUDIO_BACKEND=alsa` with the DAC: go-librespot and MPD take turns through `dmix` without "device busy" | [ ] | [ ] | |
 | 29 | CPU load with PipeWire keeping the DAC running: idle, Spotify playing, FLAC playing (`top`) | [ ] | [ ] | |
 | 30 | Click wheel and haptics with pigpio on the PWM clock (`-DI2S_AUDIO`): no lost wheel events, no audio glitches while scrolling | [ ] | [ ] | |
+| 31 | iPod 4G dock opening: width, height, corner radius, wall thickness, middle of the opening to the inside surface (the bracket's `[MEASURE]` values) | [ ] | [ ] | |
+| 32 | Bracket: prints without supports; bezel fits the opening; USB-C cables (record which) click in fully | [ ] | [ ] | |
+| 33 | Charging from a USB-C-to-C charger (record which) with the hold switch engaged: yellow LED; and from a USB-A-to-C cable | [ ] | [ ] | |
+| 34 | Charging while playing Spotify: no brownout or reboot when plugging and unplugging; charge ends (green LED) while running | [ ] | [ ] | |
+| 35 | PowerBoost 1000C temperature in the closed case while charging at 1 A and playing | [ ] | [ ] | |
+| 36 | Runtime from full on the cell used (record its mAh), playing Spotify over the jack and over Bluetooth | [ ] | [ ] | |
+| 37 | Hold switch engaged with the charger plugged in: the iPod stays off and keeps charging | [ ] | [ ] | |

@@ -24,7 +24,7 @@ before anything goes into the case.
 | 5 | [Click wheel](05-click-wheel.md) | click wheel, FPC breakout, 30 AWG wire |
 | 6 | [Display and haptics](06-display-haptics.md) | Adafruit #911, 2N3904, 220 ohm, 1N4148, motor |
 | 6b | [Wired audio](06b-wired-audio.md) | Adafruit #6309 DAC, the iPod's jack board, 3.5 mm cable |
-| 7 | [Power](07-power.md) | battery, charger, PowerBoost |
+| 7 | [Power](07-power.md) | battery, PowerBoost 1000C, USB-C breakout, USB-C charger |
 | 8 | [Assemble](08-assembly.md) | |
 | 9 | [Using it](09-using.md) | |
 | 9b | [Your own music files](09b-own-music.md) (optional) | music files, a computer with `rsync` or `scp` |

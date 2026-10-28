@@ -31,6 +31,7 @@ diagrams from these are included in this repository.
 | **Kakoub** | Community wiring diagram, re-hosted with credit on Shogan.tech's build log | [Hackaday.io profile](https://hackaday.io/Kakoub) |
 | **Ricardo Sappia** (rsappia) | "Spotifypod base plate and holder": 3D-printed base plate, key-press extension and stand. Creative Commons - Attribution - Non-Commercial; not included in this repository | [Thingiverse](https://www.thingiverse.com/thing:4789155) |
 | **Guy Dupont** | "Round 2: USB-C, wired audio, and RetroPie" log and video, and project comments on reusing the original headphone jack | [Hackaday.io log](https://hackaday.io/project/177034/log/190079-round-2-usb-c-wired-audio-and-retropie) |
+| **makhowastaken** | `ipod_usb_c`: a USB-C board with 5.1 kΩ CC resistors for iPods (linked, not used) | [GitHub](https://github.com/makhowastaken/ipod_usb_c) |
 | **Pierre-Loup M.**, **tanagram27**, **Phil Karza** | Hackaday comments on I2S DACs in the case, and that a line-level PCM5102 needs a headphone amplifier | [Hackaday discussion](https://hackaday.io/project/177034-spot-spotify-in-a-4th-gen-ipod-2004) |
 
 ## Third-party software the installer sets up
@@ -57,6 +58,10 @@ repository.
 | [Adafruit #911](https://www.adafruit.com/product/911) | display wiring (red V+, black GND, GND, video), 6-12 V rating, 120 mA at 5 V |
 | [Adafruit PowerBoost 1000 Basic pinouts](https://learn.adafruit.com/adafruit-powerboost-1000-basic/pinouts) | BAT / 5V / GND / EN / LBO behaviour |
 | [Adafruit #1905 Mini LiPo charger](https://www.adafruit.com/product/1905) | 100 mA default, 500 mA jumper |
+| [Adafruit #2465 PowerBoost 1000C](https://www.adafruit.com/product/2465), its [pinouts](https://learn.adafruit.com/adafruit-powerboost-1000c-load-share-usb-charge-boost/pinouts) and schematic | USB pad as the charging input, load sharing, EN and LBO, LEDs, 1 A charge (R16) |
+| [Adafruit #6050 sunken USB-C breakout](https://www.adafruit.com/product/6050) and its [board file](https://github.com/adafruit/Adafruit-Sunken-USB-Type-C-Breakout-PCB) | 5.1 kΩ CC resistors; board, hole and receptacle sizes for the bracket |
+| [Microchip MCP73831 datasheet](https://cdn-shop.adafruit.com/datasheets/MCP73831.pdf) | end of charge at 7.5 % of the set current, no safety timer: why #1905 + 1000 Basic can't finish a charge while running |
+| TI, [USB Type-C basics (SLYY109B)](https://www.ti.com/document-viewer/lit/html/SLYY109B/GUID-4F2F65BB-B5A2-4AEF-A109-F2FFC34EEAB7) | a USB-C source turns on 5 V only after it sees Rd (5.1 kΩ) |
 | [Spotify Web API: February 2026 migration guide](https://developer.spotify.com/documentation/web-api/tutorials/february-2026-migration-guide) | Development Mode limits and removed endpoints |
 | go-librespot `CROSS_COMPILE.md` | `armv6_rpi` build is for Pi 1 / Zero |
 | [MPD user manual](https://mpd.readthedocs.io/en/stable/user.html) and Debian's `mpd.service` | `mpd.conf` settings, `--systemd` unit |
