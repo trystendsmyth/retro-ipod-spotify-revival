@@ -310,6 +310,7 @@ def connect(mac: str) -> tuple[bool, str]:
             sink = sink_for_mac(mac)
             if sink:
                 set_default_sink(sink["id"])
+                move_streams(sink["name"])
                 break
     return ok, out.strip()
 
@@ -366,18 +367,24 @@ def audio_sinks() -> list[dict]:
         elif obj.get("type") == "PipeWire:Interface:Node":
             props = (obj.get("info") or {}).get("props") or {}
             if props.get("media.class") == "Audio/Sink":
+                name = props.get("node.name", "")
                 sinks.append(
                     {
                         "id": obj.get("id"),
-                        "name": props.get("node.name", ""),
+                        "name": name,
                         "description": props.get("node.description")
                         or props.get("node.nick")
-                        or props.get("node.name", ""),
+                        or name,
+                        # ALSA card name, e.g. snd_rpi_hifiberry_dac ("" for Bluetooth)
+                        "card": props.get("alsa.card_name", ""),
+                        "bluetooth": name.startswith("bluez_output."),
                         "default": False,
                     }
                 )
     for s in sinks:
         s["default"] = default_name is not None and s["name"] == default_name
+        # PipeWire's own default, without the single-sink guess below
+        s["configured"] = s["default"]
     if sinks and not any(s["default"] for s in sinks) and len(sinks) == 1:
         sinks[0]["default"] = True  # single sink is effectively the default
     return sinks
@@ -393,6 +400,26 @@ def sink_for_mac(mac: str) -> Optional[dict]:
 
 def set_default_sink(sink_id) -> bool:
     rc, _ = _run(["wpctl", "set-default", str(sink_id)], timeout=5)
+    return rc == 0
+
+
+def move_streams(sink_name: str) -> int:
+    """Move every playing stream (go-librespot, MPD) to `sink_name`; returns how many."""
+    rc, out = _run(["pactl", "list", "short", "sink-inputs"], timeout=5)
+    if rc != 0:
+        return 0
+    moved = 0
+    for line in out.splitlines():
+        stream_id = line.split("\t", 1)[0].strip()
+        if stream_id.isdigit():
+            rc, _ = _run(["pactl", "move-sink-input", stream_id, sink_name], timeout=5)
+            moved += rc == 0
+    return moved
+
+
+def set_sink_volume(sink_id, volume: float) -> bool:
+    """wpctl volume (cubic scale, 1.0 = 0 dB) of one sink."""
+    rc, _ = _run(["wpctl", "set-volume", str(sink_id), f"{volume:.3f}"], timeout=5)
     return rc == 0
 
 

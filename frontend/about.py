@@ -1,4 +1,4 @@
-"""Settings -> About: software version, address, display and backend versions.
+"""Settings -> About: software version, address, display, backend versions and audio output.
 
 Versions come from /etc/spotifypod/install.env, which install/install.sh rewrites on
 every run (the installed copy under /opt has no git checkout to ask).
@@ -9,6 +9,8 @@ import os
 import socket
 import subprocess
 from importlib import metadata
+
+import audio_output
 
 _REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -67,5 +69,6 @@ def items() -> list[tuple[str, str]]:
         ("go-librespot", os.environ.get("GO_LIBRESPOT_VERSION") or "unknown"),
         ("MPD", mpd),
         ("Audio", os.environ.get("AUDIO_BACKEND") or "unknown"),
+        ("Output", audio_output.active_label()),
         ("spotipy", _package("spotipy")),
     ]

@@ -1,5 +1,6 @@
 import time
 import about
+import audio_output
 import local_player
 import player
 import power
@@ -780,10 +781,57 @@ class AboutPage(MenuPage):
         self.index, self.page_start, self.loaded_at = 1, 0, 0
         return self.previous_page
 
+class OutputPage(MenuPage):
+    """Settings -> Output: the headphone jack or a paired Bluetooth device."""
+    REFRESH_SECONDS = 3
+
+    def __init__(self, previous_page):
+        super().__init__("Output", previous_page, has_sub_page=True)
+        self.outputs = []
+        self.loaded_at = 0
+
+    def _outputs(self):
+        if time.time() - self.loaded_at > self.REFRESH_SECONDS:
+            self.loaded_at = time.time()
+            try:
+                self.outputs = audio_output.outputs()["outputs"]
+            except Exception as exc:  # PipeWire or bluez not answering
+                print("output menu:", exc)
+                self.outputs = []
+        return self.outputs
+
+    def total_size(self):
+        return len(self._outputs())
+
+    def page_at(self, index):
+        out = self._outputs()[index]
+        title = out["label"] + (" (on)" if out["active"] else "")
+        return PlaceHolderPage(title, self, has_sub_page=False)
+
+    def nav_select(self):
+        outs = self._outputs()
+        if not outs:
+            return self
+        chosen = outs[self.index]
+        def run():
+            ok, err = audio_output.select(chosen["id"])
+            if not ok:
+                print("output:", err)
+            self.loaded_at = 0
+        spotify_manager.run_async(run)
+        return self
+
+    def nav_back(self):
+        self.index, self.page_start, self.loaded_at = 0, 0, 0
+        return self.previous_page
+
 class SettingsPage(MenuPage):
     def __init__(self, previous_page):
         super().__init__("Settings", previous_page, has_sub_page=True)
-        self.items = [AboutPage(self), SyncLibraryPage(self)]
+        self.items = [AboutPage(self)]
+        if audio_output.switchable():
+            self.items.append(OutputPage(self))
+        self.items.append(SyncLibraryPage(self))
         if local_player.enabled():
             self.items.append(UpdateMusicPage(self))
         self.items += [

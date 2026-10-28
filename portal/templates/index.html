@@ -130,11 +130,13 @@
     <div id="bt-msg" class="error" style="display:none"></div>
     <ul id="bt-devices" class="devices"><li class="muted">Loading…</li></ul>
     <button id="bt-unnamed" type="button" class="secondary small" style="display:none" onclick="btToggleUnnamed()"></button>
-    <div id="bt-sinks" style="display:none;margin-top:0.75rem">
-      <span class="muted">Output:</span>
-      <select id="bt-sink-select" style="padding:0.5rem;border-radius:8px;background:#111;color:#fff;border:1px solid #444"></select>
-      <button class="small" type="button" onclick="btSetSink()">Use</button>
-    </div>
+  </div>
+
+  <div class="card" id="audio">
+    <h2>Output</h2>
+    <p class="muted">Where the sound goes. With no Bluetooth device connected, it plays from the headphone jack.</p>
+    <div id="audio-msg" class="error" style="display:none"></div>
+    <ul id="audio-outputs" class="devices"><li class="muted">Loading…</li></ul>
   </div>
 
   <div class="card">
@@ -231,11 +233,6 @@
 
     function render(st) {
       lastState = st;
-      // status card line
-      const out = $('audio-out');
-      if (st.default_sink) { out.className = 'ok'; out.textContent = st.default_sink.description; }
-      else if (st.connected && st.connected.length) { out.className = 'muted'; out.textContent = 'speaker connected, waiting for PipeWire sink…'; }
-      else { out.className = 'bad'; out.textContent = 'none — pair a Bluetooth speaker below'; }
 
       // scan button
       const scanBtn = $('bt-scan'), scanState = $('bt-scan-state');
@@ -267,14 +264,40 @@
                + badge + '<div class="actions">' + actions + '</div></li>';
         }).join('');
       }
-
-      // sinks
-      const sinksBox = $('bt-sinks'), sel = $('bt-sink-select');
-      if (st.sinks && st.sinks.length > 1) {
-        sinksBox.style.display = 'block';
-        sel.innerHTML = st.sinks.map((s) => '<option value="' + s.id + '"' + (s.default ? ' selected' : '') + '>' + esc(s.description) + '</option>').join('');
-      } else sinksBox.style.display = 'none';
     }
+
+    function renderAudio(st) {
+      const out = $('audio-out'), ul = $('audio-outputs');
+      const active = (st.outputs || []).find((o) => o.active);
+      if (active) { out.className = 'ok'; out.textContent = active.label; }
+      else { out.className = 'bad'; out.textContent = st.error ? 'unknown' : 'none — check the headphone jack wiring or pair a Bluetooth device'; }
+      if (!st.outputs || !st.outputs.length) {
+        ul.innerHTML = '<li class="muted">No outputs found.</li>';
+        return;
+      }
+      ul.innerHTML = st.outputs.map((o) => {
+        const badge = o.active ? '<span class="badge on">playing here</span>'
+                    : (o.connected ? '<span class="badge">ready</span>' : '<span class="badge">not connected</span>');
+        let action = '';
+        if (busy['out:' + o.id]) action = '<span class="muted"><span class="spin"></span> Switching…</span>';
+        else if (st.switchable && !o.active) action = '<button type="button" class="small" data-output="' + esc(o.id) + '">Use</button>';
+        return '<li><div class="dev-name">' + esc(o.label) + '</div>' + badge + '<div class="actions">' + action + '</div></li>';
+      }).join('');
+      if (!st.switchable) ul.innerHTML += '<li class="muted">AUDIO_BACKEND=alsa: headphone jack only.</li>';
+    }
+
+    $('audio-outputs').addEventListener('click', async (ev) => {
+      const b = ev.target.closest('button[data-output]');
+      if (!b) return;
+      const msg = $('audio-msg');
+      msg.style.display = 'none';
+      busy['out:' + b.dataset.output] = true;
+      renderAudio(await api('/api/audio'));
+      const r = await api('/audio/output', {output: b.dataset.output});
+      delete busy['out:' + b.dataset.output];
+      if (r.ok === false) { msg.style.display = 'block'; msg.textContent = r.message || 'Could not change output'; }
+      refresh();
+    });
 
     function btn(label, action, d, cls) {
       return '<button type="button" class="small ' + cls + '" data-action="' + action
@@ -286,9 +309,10 @@
     });
 
     async function refresh() {
-      const st = await api('/api/bt');
+      const [st, audio] = await Promise.all([api('/api/bt'), api('/api/audio')]);
       if (st.error) showMsg(st.error);
       render(st);
+      renderAudio(audio);
       // keep polling while scanning, plus a few extra rounds so late names show up
       if (st.scanning) { lastScanning = true; scanPollsLeft = 3; schedule(1500); }
       else if (lastScanning && scanPollsLeft-- > 0) schedule(1500);
@@ -319,12 +343,6 @@
     window.btToggleUnnamed = function () {
       showUnnamed = !showUnnamed;
       if (lastState) render(lastState);
-    };
-
-    window.btSetSink = async function () {
-      const r = await api('/audio/default', {sink: $('bt-sink-select').value});
-      if (r.ok === false) showMsg(r.message || 'Could not change output');
-      refresh();
     };
 
     refresh();
