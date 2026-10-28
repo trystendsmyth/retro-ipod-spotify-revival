@@ -31,3 +31,14 @@ next to each result.
 | 17 | Source switching: starting local music pauses Spotify, and vice versa; a phone pressing play via Connect pauses local music | [ ] | [ ] | |
 | 18 | `AUDIO_BACKEND=alsa` with a DAC: can go-librespot and MPD take turns on the device, or does one report "device busy"? | [ ] | [ ] | |
 | 19 | Settings -> About shows the right version, IP address, display profile and backend versions | [ ] | [ ] | |
+| 20 | Wired audio: `i2cdetect -y 1` shows `18`; `spotifypod-dac` is `active (exited)`; `aplay -l` lists `sndrpirpidac`; OS release and kernel version | [ ] | [ ] | |
+| 21 | Hold switch still turns the iPod on and off after the jack board is soldered | [ ] | [ ] | |
+| 22 | Jack output level at `WIRED_GAIN_DB=-20` with 16 Ω and 32 Ω earbuds: comfortable at full wheel volume? Record the value you would choose | [ ] | [ ] | |
+| 23 | Hiss or distortion with the DAC's PLL on the I2S bit clock, at 44.1 kHz (Spotify) and with a 48 kHz FLAC (Music on iPod) | [ ] | [ ] | |
+| 24 | Whine in the earbuds at idle and while playing, on battery (PowerBoost) and on USB power; is the hold switch's ground joined to the jack's sleeve? | [ ] | [ ] | |
+| 25 | Pops at boot, at shutdown and between tracks, with `AUDIO_BACKEND=pulseaudio` and `alsa` | [ ] | [ ] | |
+| 26 | Jack detect: which jack pins, the level with a plug in, switching to the jack and back to Bluetooth | [ ] | [ ] | |
+| 27 | Output switching from Settings -> Output and the setup page; Bluetooth disconnect falls back to the jack; Spotify and MPD keep playing across a switch | [ ] | [ ] | |
+| 28 | `AUDIO_BACKEND=alsa` with the DAC: go-librespot and MPD take turns through `dmix` without "device busy" | [ ] | [ ] | |
+| 29 | CPU load with PipeWire keeping the DAC running: idle, Spotify playing, FLAC playing (`top`) | [ ] | [ ] | |
+| 30 | Click wheel and haptics with pigpio on the PWM clock (`-DI2S_AUDIO`): no lost wheel events, no audio glitches while scrolling | [ ] | [ ] | |

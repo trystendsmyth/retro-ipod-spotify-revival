@@ -27,6 +27,7 @@ if os.path.isfile(_ENV):
             k, _, v = line.partition("=")
             os.environ.setdefault(k.strip(), v.strip().strip("'\""))
 
+import audio_output  # noqa: E402
 import bt_manager  # noqa: E402
 import player  # noqa: E402
 import power  # noqa: E402
@@ -193,12 +194,22 @@ def bt_forget():
     return _bt_action(bt_manager.forget)
 
 
-@app.post("/audio/default")
-def audio_default():
-    sink_id = str(_json_body().get("sink") or "").strip()
-    if not sink_id.isdigit() or not bt_manager.set_default_sink(sink_id):
-        return {"ok": False, "message": "Could not set default audio output"}, 502
-    return {"ok": True}
+@app.get("/api/audio")
+def api_audio():
+    try:
+        return audio_output.outputs()
+    except Exception as exc:
+        return {"switchable": False, "active": "", "outputs": [], "error": str(exc)}
+
+
+@app.post("/audio/output")
+def audio_select():
+    output_id = str(_json_body().get("output") or "").strip()
+    try:
+        ok, msg = audio_output.select(output_id)
+    except Exception as exc:
+        return {"ok": False, "message": str(exc)}, 500
+    return {"ok": ok, "message": msg}, (200 if ok else 502)
 
 
 # ---------------------------------------------------------------- Power

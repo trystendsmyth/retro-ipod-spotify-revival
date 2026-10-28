@@ -14,6 +14,7 @@ import os
 import threading
 import traceback
 import setup_state
+import audio_output
 import bt_manager
 
 try:
@@ -781,6 +782,8 @@ def app_main_loop():
 
 # Reconnect trusted Bluetooth speakers in the background (never blocks the UI)
 threading.Thread(target=bt_manager.auto_connect, daemon=True).start()
+# Jack when no Bluetooth device is connected; follow jack detect if wired
+threading.Thread(target=audio_output.run_forever, daemon=True).start()
 
 maybe_render_setup(app)
 if _setup_ready:

@@ -3,7 +3,7 @@
 **Spotify in a 4th-generation iPod, rebuilt for 2026.** A Raspberry Pi Zero W (or, as an
 alternative, a Zero 2 W) inside an iPod "Click Wheel" (model A1059) case, driven by the
 original click wheel, with haptic feedback, Spotify Connect playback and your Spotify
-library on a tiny screen. It also plays your own DRM-free music files from the SD card,
+library on a tiny screen, through the iPod's own headphone jack or Bluetooth. It also plays your own DRM-free music files from the SD card,
 under **Music on iPod** ([guide chapter 9b](docs/guide/09b-own-music.md)).
 
 <p align="center">
@@ -39,7 +39,8 @@ click wheel --(GPIO, pigpio)--> clickwheel/click.c --UDP 127.0.0.1:9090--> front
                                                                               |-- MPD :6600 (music files in /srv/music)
                                                                               |-- Spotify Web API (library/search, PKCE login)
                                                                               `-- SQLite cache
-phone --> http://ipod.local (portal/: Spotify linking, Bluetooth pairing, power)
+audio --> I2S DAC (TLV320DAC3100, set up by install/bin/tlv320.py) --> headphone jack, or Bluetooth (frontend/audio_output.py)
+phone --> http://ipod.local (portal/: Spotify linking, Bluetooth pairing, output, power)
 ```
 
 ## Hardware
@@ -51,6 +52,7 @@ phone --> http://ipod.local (portal/: Spotify linking, Bluetooth pairing, power)
 | Adafruit #911 2" NTSC/PAL TFT (original sPot display) | `DISPLAY_PROFILE=composite` (default). |
 | Waveshare 2" ST7789V SPI (Ricardo Sappia's build) | `DISPLAY_PROFILE=st7789` (upstream oliver-vv path, not covered by the guide). |
 | iPod 4th gen (A1059) click wheel, 8-pin FPC | Required. Other generations use different connectors. |
+| Adafruit #6309 TLV320DAC3100 I2S DAC | Headphones through the original jack (`WIRED_AUDIO=i2s`, default; [chapter 6b](docs/guide/06b-wired-audio.md)). |
 
 ## Status - read this
 
@@ -59,10 +61,16 @@ phone --> http://ipod.local (portal/: Spotify linking, Bluetooth pairing, power)
   Web API parsing is tested against Spotify's 2026 response shapes; the MPD client and
   the Spotify/local-music switching are tested, the MPD client also against a real MPD
   with a null audio output; the UI renders at 320x240 and 720x480 (composite) with demo
-  data.
+  data. Wired audio: the boot config, the pin-collision check and the ALSA config are
+  tested against fixtures, the DAC's register sequence against the datasheet's clock
+  limits, and output switching with the PipeWire and Bluetooth commands faked. The
+  installer runs end to end in Debian Bookworm and Trixie containers (arm64, systemd, no
+  Pi hardware), with re-runs for each audio option, the setup page answering, and output
+  switching on the installed PipeWire with stand-in devices.
 * **Not yet verified on hardware by this repository.** The hardware follows the original
   sPot; the software path follows oliver-vv's fork (Zero 2 W) and thehajime's fork
-  (go-librespot on a Zero W). If you build one, please open an issue with what worked.
+  (go-librespot on a Zero W). Wired audio is new here and has not been run on a Pi; its
+  open checks are in [VALIDATION.md](docs/guide/VALIDATION.md). If you build one, please open an issue with what worked.
 
 ## Credits
 

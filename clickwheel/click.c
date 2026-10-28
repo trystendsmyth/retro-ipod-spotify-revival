@@ -11,6 +11,7 @@
 //     single-core Pi Zero W
 //   * standard main() signature; clean shutdown on SIGINT/SIGTERM
 //   * -DNO_HAPTIC builds without the haptic motor output
+//   * -DI2S_AUDIO times pigpio from the PWM peripheral, leaving PCM to the I2S DAC
 //
 // Build (install/install.sh does this for you):
 //   gcc -Wall -pthread -O2 -o click click.c -lpigpio -lrt
@@ -201,6 +202,11 @@ int main(int argc, char **argv){
     servaddr.sin_port = htons(PORT); 
     servaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK); 
 
+#ifdef I2S_AUDIO
+    // pigpio times its sampling and waves from the PCM peripheral by default. The I2S
+    // DAC needs PCM, so use PWM (the Zero has no PWM audio to clash with).
+    gpioCfgClock(5, PI_CLOCK_PWM, 0);
+#endif
     if (gpioInitialise() < 0) {
        exit(1);
     }

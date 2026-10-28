@@ -1,0 +1,17 @@
+[Unit]
+Description=Headphone jack DAC (TLV320DAC3100) setup over I2C
+Documentation=file:///opt/spotifypod/bin/tlv320.py
+After=systemd-modules-load.service
+# Stops before the players at shutdown, so the jack ramps down while they still run.
+After=go-librespot.service spotifypod-mpd.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# WIRED_GAIN_DB, DAC_RESET_GPIO
+EnvironmentFile=-/etc/spotifypod/install.env
+ExecStart=/usr/bin/python3 /opt/spotifypod/bin/tlv320.py start
+ExecStop=/usr/bin/python3 /opt/spotifypod/bin/tlv320.py stop
+
+[Install]
+WantedBy=multi-user.target

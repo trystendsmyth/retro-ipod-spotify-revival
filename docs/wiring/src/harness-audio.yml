@@ -1,0 +1,63 @@
+# Wired audio harness (WireViz 0.4 format). Same connections as schematic 05.
+# Render: wireviz -f ps docs/wiring/src/harness-audio.yml -o docs/wiring
+# The DAC is drawn once per destination (U5 to Pi, U5 to jack): same board, same pads.
+# W10 (jack detect) is optional; see docs/guide/06b-wired-audio.md.
+options:
+  bgcolor: WH
+
+connectors:
+  PI:
+    type: Pi Zero W / Zero 2 W
+    subtype: 40-pin header
+    pins: [4, 3, 5, 11, 12, 35, 40, 34]
+    pinlabels: [5V, GPIO2 SDA, GPIO3 SCL, GPIO17, GPIO18 BCLK, GPIO19 LRCLK, GPIO21 DOUT, GND]
+  U5 to Pi:
+    type: Adafruit 6309 TLV320DAC3100
+    subtype: header pads
+    pins: [VIN, SDA, SCL, RST, BCK, WSEL, DIN, GND]
+  U5 to jack:
+    type: Adafruit 6309 TLV320DAC3100
+    subtype: same board, headphone pads
+    pins: [HPL, HPR, GND]
+  J2:
+    type: iPod headphone jack
+    subtype: on the hold-switch board
+    pins: [T, R, S]
+    pinlabels: [TIP left, RING right, SLEEVE]
+  PI detect:
+    type: Pi Zero W / Zero 2 W
+    subtype: 40-pin header
+    pins: [36]
+    pinlabels: [GPIO16]
+  J2 detect:
+    type: iPod headphone jack
+    subtype: switch contact, optional; other lug to SLEEVE
+    pins: [DET]
+
+cables:
+  W8:
+    wirecount: 8
+    colors: [RD, BU, OG, BN, PK, GY, YE, BK]
+    gauge: 30 AWG
+    notes: keep under 10 cm; I2S clock edges
+  W9:
+    wirecount: 3
+    colors: [WH, RD, BK]
+    gauge: 30 AWG
+    notes: left, right, ground
+  W10:
+    wirecount: 1
+    colors: [LB]
+    gauge: 30 AWG
+    notes: optional jack detect
+
+connections:
+  - - PI: [4, 3, 5, 11, 12, 35, 40, 34]
+    - W8: [1, 2, 3, 4, 5, 6, 7, 8]
+    - U5 to Pi: [VIN, SDA, SCL, RST, BCK, WSEL, DIN, GND]
+  - - U5 to jack: [HPL, HPR, GND]
+    - W9: [1, 2, 3]
+    - J2: [T, R, S]
+  - - PI detect: [36]
+    - W10: [1]
+    - J2 detect: [DET]

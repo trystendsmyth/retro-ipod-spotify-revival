@@ -13,7 +13,7 @@ Use `TV_NORM=PAL` if your display is set to PAL. Expect this to take a long time
 Zero W (package installs and Python libraries run on a single core); a Zero 2 W is much
 quicker. Keep the SSH session open until it prints `Install complete.` What it does:
 
-* installs packages (Python, X, PipeWire for Bluetooth audio, build tools);
+* installs packages (Python, X, PipeWire for Bluetooth and headphone audio, build tools);
 * builds pigpio if your OS no longer packages it, then compiles `clickwheel/click.c` with
   your pin numbers (clock 23, data 25, haptic 26 by default);
 * downloads go-librespot **v0.10.4** - the `armv6_rpi` build on a Zero W, `arm64` on a
@@ -23,6 +23,9 @@ quicker. Keep the SSH session open until it prints `Install complete.` What it d
   `vc4.tv_norm=...`, as described in the Raspberry Pi config.txt documentation);
 * creates a `spotifypod` service user and four systemd services: `click`,
   `go-librespot`, `spotifypod` (UI) and `spotifypod-portal` (setup page);
+* sets up wired audio for the headphone jack ([chapter 6b](06b-wired-audio.md)): I2C and
+  the `i2s-dac` overlay in `config.txt`, and `spotifypod-dac`, which sets up the DAC at
+  boot. `WIRED_AUDIO=none` skips it;
 * installs MPD for your own music files as a fifth service, `spotifypod-mpd`, with the
   music folder `/srv/music` ([chapter 9b](09b-own-music.md); `LOCAL_MUSIC=0` skips it);
 * installs [comitup](https://davesteele.github.io/comitup/) for the setup hotspot from
@@ -70,7 +73,8 @@ journalctl -u go-librespot -b --no-pager | tail -20
 ```
 
 **Check:** all five are `active (running)` (four with `LOCAL_MUSIC=0`) and the phone's
-Spotify app lists **iPod** as a device. (Audio output is chosen later on the setup page - chapter 9.)
+Spotify app lists **iPod** as a device. `spotifypod-dac` fails until the DAC is wired in
+chapter 6b; that's expected. (Audio output is chosen later - chapters 6b and 9.)
 
 ## Optional: preview the UI on your computer
 

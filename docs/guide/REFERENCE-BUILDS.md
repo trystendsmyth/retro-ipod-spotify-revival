@@ -24,8 +24,18 @@ composite display and the 4th-gen click wheel.
   The original wiring diagram, which this repository also keeps as
   `.docs/sPot_schematic.png`.
 * [Log: "Round 2: USB-C, wired audio, and RetroPie"](https://hackaday.io/project/177034/log/190079-round-2-usb-c-wired-audio-and-retropie)
-  (March 2021). A video log of the second revision (the part 2 video above), with little
-  written detail.
+  (March 2021). A video log of the second revision (the part 2 video above). Its only text
+  is "Will be updating parts list, schematic, and source code over the weekend"; the
+  components list and schematic were not updated afterwards. The video's chapters include
+  "Charging port update" (1:34) and "Restoring the headphone jack" (4:45).
+
+**Wired audio and USB-C in sPot.** No written record says which parts Round 2 used. Guy's
+comments on the project page give the plan: "I think if I switch to a smaller boost
+module, I can fit a small USB DAC and hook it back up" (project details); asked about the
+original jack, "I plan on it! Gonna rip of the included one from the DAC module"
+(February 2021); and, when a commenter linked Adafruit's USB-C Micro-Lipo charger (#4410),
+"I literally ordered one of these on Friday!". This guide uses an I2S DAC instead of a USB
+one (the Zero's only data port stays free) and, like Guy's plan, the original jack.
 * [Log: "Ricardo's Alternate Build"](https://hackaday.io/project/177034/log/190310-ricardos-alternate-build)
   (March 2021). Guy's summary of Ricardo Sappia's build, below.
 
@@ -101,13 +111,27 @@ From the discussion on the [sPot project page](https://hackaday.io/project/17703
 * **tanagram27** (January 2023), text only:
   * trimmed all the unused ports off the Pi Zero;
   * fitted a 2500 mAh cell lying flat, with the Pi on top;
-  * wired in a PCM5102 DAC.
+  * wired in a PCM5102 DAC and "fit it inside the case" (no detail on the jack).
+* **Pierre-Loup M.** (February 2021): has used the PCM5102A with a Pi Zero, and warns
+  that "it gives a line level. A headphone amp (on chip or discrete components) will be
+  needed." This is why chapter 6b uses a DAC with a headphone amplifier.
+* **Phil Karza** (February 2021): an I2S DAC that "does work with a small amplifier board,
+  too" (part not named).
 * **Doris** (2022–2023), text only:
   * a Pi Zero 2 W build in the thicker 60 GB back case;
-  * an Adafruit USB-C charger and a PowerBoost 1000 Basic;
+  * an Adafruit USB-C charger (the exact part isn't given) and a PowerBoost 1000 Basic;
   * a 653496 LiPo sold as 2500 mAh, which Doris notes is really 1800 mAh;
   * warns to check the battery plug's polarity against the charger and swap the pins if
     needed.
+
+## Other iPod builds with the original jack
+
+* [ipodrpi](https://hackaday.io/project/182282) (Hackaday.io): an iPod 4th gen with a Pi
+  and a USB sound card whose output is soldered to the iPod's own minijack, and the hold
+  switch in the ground lead. No pad-level detail.
+* [Sprout](https://www.crowdsupply.com/certain-things/sprout-pi-mainboard) (Certain
+  Things): a replacement mainboard for the 3rd/4th gen and mini that reuses the original
+  ribbon cables and the 3.5 mm jack. No pinout published.
 
 ## Background
 

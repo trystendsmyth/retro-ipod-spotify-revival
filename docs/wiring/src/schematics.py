@@ -181,9 +181,78 @@ def power(t):
     save(d, "04-power", t)
 
 
+def wired_audio(t):
+    d = new_drawing(t)
+    pi = d.add(pi_block([
+        elm.IcPin(name="5V", pin="4", side="right", slot="9/9"),
+        elm.IcPin(name="GPIO2 SDA", pin="3", side="right", slot="8/9"),
+        elm.IcPin(name="GPIO3 SCL", pin="5", side="right", slot="7/9"),
+        elm.IcPin(name="GPIO17", pin="11", side="right", slot="6/9"),
+        elm.IcPin(name="GPIO18 BCLK", pin="12", side="right", slot="5/9"),
+        elm.IcPin(name="GPIO19 LRCLK", pin="35", side="right", slot="4/9"),
+        elm.IcPin(name="GPIO21 DOUT", pin="40", side="right", slot="3/9"),
+        elm.IcPin(name="GND", pin="34", side="right", slot="2/9"),
+        elm.IcPin(name="GPIO16", pin="36", side="right", slot="1/9"),
+    ], spacing=0.8))
+    dac = d.add(elm.Ic(pins=[
+        elm.IcPin(name="VIN", side="left", slot="9/9"),
+        elm.IcPin(name="SDA", side="left", slot="8/9"),
+        elm.IcPin(name="SCL", side="left", slot="7/9"),
+        elm.IcPin(name="RST", side="left", slot="6/9"),
+        elm.IcPin(name="BCK", side="left", slot="5/9"),
+        elm.IcPin(name="WSEL", side="left", slot="4/9"),
+        elm.IcPin(name="DIN", side="left", slot="3/9"),
+        elm.IcPin(name="GND", side="left", slot="2/9"),
+        elm.IcPin(name="HPL", side="right", slot="9/9"),
+        elm.IcPin(name="HPR", side="right", slot="8/9"),
+        elm.IcPin(name="GND", side="right", slot="7/9", anchorname="AGND"),
+    ], edgepadW=0.7, edgepadH=0.5, pinspacing=0.8, leadlen=0.9, w=3.0)
+        .label("U5  Adafruit #6309\nTLV320DAC3100", loc="top", fontsize=10)
+        .at((pi.center[0] + 10, pi.center[1])).anchor("center"))
+    jack = d.add(elm.Ic(pins=[
+        elm.IcPin(name="TIP (left)", side="left", slot="9/9"),
+        elm.IcPin(name="RING (right)", side="left", slot="8/9"),
+        elm.IcPin(name="SLEEVE", side="left", slot="7/9"),
+        elm.IcPin(name="DET*", side="left", slot="2/9"),
+        elm.IcPin(name="DET GND*", side="left", slot="1/9"),
+    ], edgepadW=0.7, edgepadH=0.5, pinspacing=0.8, leadlen=0.9, w=3.2)
+        .label("J2  iPod headphone jack\n(on the hold-switch board)", loc="top", fontsize=10)
+        .at((dac.center[0] + 9.5, dac.center[1])).anchor("center"))
+    wires = [
+        ("5V", "VIN", t["red"]), ("GPIO2 SDA", "SDA", t["blue"]), ("GPIO3 SCL", "SCL", t["orange"]),
+        ("GPIO17", "RST", t["brown"]), ("GPIO18 BCLK", "BCK", t["pink"]),
+        ("GPIO19 LRCLK", "WSEL", t["grey"]), ("GPIO21 DOUT", "DIN", t["yellow"]), ("GND", "GND", t["fg"]),
+    ]
+    for a, b, colour in wires:
+        d += elm.Wire("-").at(pi[a]).to(dac[b]).color(colour)
+    d += elm.Wire("-").at(dac["HPL"]).to(jack["TIP (left)"])
+    d += elm.Wire("-").at(dac["HPR"]).to(jack["RING (right)"]).color(t["red"])
+    d += elm.Wire("-").at(dac["AGND"]).to(jack["SLEEVE"])
+    # Optional jack detect: under the DAC to the jack's switch contact
+    x0, y_under = pi["GPIO16"][0] + 1.5, bottom(dac) - 0.6
+    x_turn = jack["DET*"][0] - 1.2
+    det = t["lightblue"]
+    d += elm.Line().at(pi["GPIO16"]).to((x0, pi["GPIO16"][1])).color(det)
+    d += elm.Line().to((x0, y_under)).color(det)
+    d += elm.Line().to((x_turn, y_under)).color(det)
+    d += elm.Line().to((x_turn, jack["DET*"][1])).color(det)
+    d += elm.Line().to(jack["DET*"]).color(det)
+    d += elm.Line().at(jack["DET GND*"]).left().length(0.8)
+    d += elm.Ground()
+    d += elm.Label().at((pi.center[0] + 9, bottom(pi) - 2.3)).label(
+        "U5 runs from the 5 V rail through its own 3.3 V regulator. HPL and HPR are its\n"
+        "AC-coupled headphone outputs (100 µF on the board). No kernel driver: tlv320.py sets it up over\n"
+        "I2C at boot, then i2s-dac carries the audio. Keep the audio wires short and the jack's ground on U5.\n"
+        "* Optional jack detect: the jack's switch contact, found with a multimeter [MEASURE], to GPIO16\n"
+        "  (pull-up set in config.txt); set JACK_PLUGGED_LEVEL to what the pin reads with a plug in.",
+        fontsize=9)
+    save(d, "05-wired-audio", t)
+
+
 if __name__ == "__main__":
     for theme in THEMES:
         click_wheel(theme)
         haptic_driver(theme)
         composite_display(theme)
         power(theme)
+        wired_audio(theme)

@@ -101,6 +101,7 @@ def main() -> None:
     local_player.song_count = lambda: len(local_songs)
 
     import spotify_manager as sm  # noqa: E402
+    import audio_output  # noqa: E402
     import bt_manager  # noqa: E402
     import setup_state  # noqa: E402
 
@@ -108,6 +109,7 @@ def main() -> None:
     sm.init_spotify = lambda force=False: None
     sm.refresh_data = lambda full=True: None
     bt_manager.auto_connect = lambda *a, **k: None
+    audio_output.run_forever = lambda *a, **k: None
     setup_state.wifi_online = lambda: True
 
     ds = sm.DATASTORE
