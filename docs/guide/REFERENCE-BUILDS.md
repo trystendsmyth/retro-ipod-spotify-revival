@@ -35,7 +35,9 @@ module, I can fit a small USB DAC and hook it back up" (project details); asked 
 original jack, "I plan on it! Gonna rip of the included one from the DAC module"
 (February 2021); and, when a commenter linked Adafruit's USB-C Micro-Lipo charger (#4410),
 "I literally ordered one of these on Friday!". This guide uses an I2S DAC instead of a USB
-one (the Zero's only data port stays free) and, like Guy's plan, the original jack.
+one (the Zero's only data port stays free) and, like Guy's plan, the original jack. For
+charging it uses a USB-C breakout and a PowerBoost 1000C instead of the #4410, which (like
+the #1905) can't finish a charge while the iPod runs.
 * [Log: "Ricardo's Alternate Build"](https://hackaday.io/project/177034/log/190310-ricardos-alternate-build)
   (March 2021). Guy's summary of Ricardo Sappia's build, below.
 
@@ -124,11 +126,16 @@ From the discussion on the [sPot project page](https://hackaday.io/project/17703
   * warns to check the battery plug's polarity against the charger and swap the pins if
     needed.
 
-## Other iPod builds with the original jack
+## Other iPod builds with the original jack or a new charging port
 
 * [ipodrpi](https://hackaday.io/project/182282) (Hackaday.io): an iPod 4th gen with a Pi
   and a USB sound card whose output is soldered to the iPod's own minijack, and the hold
-  switch in the ground lead. No pad-level detail.
+  switch in the ground lead. No pad-level detail. It moves the charger's micro-USB socket
+  into the old 30-pin opening.
+* [ipod_usb_c](https://github.com/makhowastaken/ipod_usb_c) (makhowastaken): a small USB-C
+  board with 5.1 kΩ CC resistors for iPods, held with a plastic spacer and a screw. It
+  needs a hole cut in the iPod's metal back; this guide's bracket uses the dock opening
+  instead.
 * [Sprout](https://www.crowdsupply.com/certain-things/sprout-pi-mainboard) (Certain
   Things): a replacement mainboard for the 3rd/4th gen and mini that reuses the original
   ribbon cables and the 3.5 mm jack. No pinout published.

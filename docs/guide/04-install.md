@@ -34,6 +34,16 @@ quicker. Keep the SSH session open until it prints `Install complete.` What it d
   removes that repository);
 * sets the hostname to `ipod`.
 
+## Re-running the installer on an older build
+
+Two defaults changed when wired audio was added:
+
+* `WIRED_AUDIO=i2s` is the default. Without the DAC fitted it does no harm
+  (`spotifypod-dac` shows as failed), or install with `WIRED_AUDIO=none`.
+* With `DISPLAY_PROFILE=st7789`, the backlight default moved from GPIO 18 to GPIO 27,
+  because GPIO 18 is the I2S bit clock. If yours is wired to GPIO 18 and you don't add
+  the DAC, install with `WIRED_AUDIO=none BL_GPIO=18`.
+
 ## Configure
 
 ```bash

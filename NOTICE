@@ -36,6 +36,7 @@ Files added in retro-ipod-spotify-revival:
     frontend/audio_output.py
   - install/bin/configure-display.sh, install/config/mpd.conf.template,
     install/systemd/spotifypod-mpd.service
+  - hardware/ (USB-C bracket: usb-c-bracket.scad, usb-c-bracket.stl, normalize_stl.py)
   - install/bin/configure-audio.sh, install/bin/check-pins.sh, install/bin/tlv320.py,
     install/config/asound.conf.template, install/config/wireplumber-dac.lua,
     install/config/wireplumber-dac.conf, install/systemd/spotifypod-dac.service

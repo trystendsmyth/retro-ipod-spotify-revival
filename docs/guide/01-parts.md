@@ -10,9 +10,10 @@ with this guide's additions marked.
 | 1 | Apple iPod 4th gen "Click Wheel", **model A1059** | Case, click wheel and hold switch are reused. Other generations have different click wheel connectors. |
 | 1 | **Raspberry Pi Zero W** | Or a Pi Zero 2 W as the alternative (same size and header). Without a pre-soldered header - you solder wires straight to it. |
 | 1 | Adafruit 2" NTSC/PAL TFT display, [#911](https://www.adafruit.com/product/911) | Composite video. See the voltage note in chapter 6. |
-| 1 | Adafruit Mini LiPo charger, [#1905](https://www.adafruit.com/product/1905) | Charges at 100 mA by default; sPot used 500 mA (solder the jumper). |
-| 1 | Adafruit PowerBoost 1000 Basic, [#2030](https://www.adafruit.com/product/2030) | 5.2 V boost. EN pin used as the power switch. |
-| 1 | 3.7 V Li-ion/LiPo cell, ~1000 mAh+, JST-PH | sPot used 1000 mAh. Community builds fitted a thin ~2500 mAh pouch cell. Check polarity against the charger. |
+| 1 | **Adafruit PowerBoost 1000C, [#2465](https://www.adafruit.com/product/2465) (changed)** | Charger and 5.2 V boost on one board; runs the iPod while it charges. EN pin used as the power switch. Replaces sPot's #1905 charger and PowerBoost 1000 Basic (#2030). |
+| 1 | **Adafruit sunken USB-C breakout, [#6050](https://www.adafruit.com/product/6050) (added)** | Charging socket in the dock-connector opening. Its 5.1 kΩ CC resistors make USB-C-to-C chargers work. |
+| 1 | **Printed USB-C bracket (added)** | [`hardware/usb-c-bracket.stl`](../../hardware/README.md); measure your case first. With two M2 x 4 mm self-tapping screws and two-part epoxy. |
+| 1 | 3.7 V Li-ion/LiPo cell, **1000 mAh or more**, JST-PH | The PowerBoost 1000C charges at 1 A. sPot used 1000 mAh; community builds fitted a thin ~2500 mAh pouch cell. Check polarity against the PowerBoost. |
 | 1 | 10x2 mm coin vibration motor | Haptic "clicks". |
 | 1 | 2N3904 NPN transistor | Drives the motor. |
 | 1 | 220 ohm resistor | Transistor base resistor. |
@@ -21,6 +22,7 @@ with this guide's additions marked.
 | 1 | 0.5 mm pitch FPC breakout, 8+ pins | For the click wheel ribbon. |
 | 1 | microSD card, 16-32 GB+ | A spare card lets you keep a known-good image. |
 | 1 | micro-USB power supply for the Pi | For chapters 3-6, before the battery is wired. |
+| 1 | USB-C charger, 5 V 2 A or more, and a USB-C-to-C cable | For charging (chapter 7). |
 
 ## Accounts
 

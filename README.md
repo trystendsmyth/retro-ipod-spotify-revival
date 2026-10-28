@@ -53,6 +53,7 @@ phone --> http://ipod.local (portal/: Spotify linking, Bluetooth pairing, output
 | Waveshare 2" ST7789V SPI (Ricardo Sappia's build) | `DISPLAY_PROFILE=st7789` (upstream oliver-vv path, not covered by the guide). |
 | iPod 4th gen (A1059) click wheel, 8-pin FPC | Required. Other generations use different connectors. |
 | Adafruit #6309 TLV320DAC3100 I2S DAC | Headphones through the original jack (`WIRED_AUDIO=i2s`, default; [chapter 6b](docs/guide/06b-wired-audio.md)). |
+| Adafruit #2465 PowerBoost 1000C and #6050 USB-C breakout | USB-C charging in the dock-connector opening, running while charging ([chapter 7](docs/guide/07-power.md)); printed bracket in [`hardware/`](hardware/README.md). |
 
 ## Status - read this
 
@@ -66,11 +67,12 @@ phone --> http://ipod.local (portal/: Spotify linking, Bluetooth pairing, output
   limits, and output switching with the PipeWire and Bluetooth commands faked. The
   installer runs end to end in Debian Bookworm and Trixie containers (arm64, systemd, no
   Pi hardware), with re-runs for each audio option, the setup page answering, and output
-  switching on the installed PipeWire with stand-in devices.
+  switching on the installed PipeWire with stand-in devices. The USB-C bracket's STL is
+  re-rendered from its OpenSCAD source in CI.
 * **Not yet verified on hardware by this repository.** The hardware follows the original
   sPot; the software path follows oliver-vv's fork (Zero 2 W) and thehajime's fork
-  (go-librespot on a Zero W). Wired audio is new here and has not been run on a Pi; its
-  open checks are in [VALIDATION.md](docs/guide/VALIDATION.md). If you build one, please open an issue with what worked.
+  (go-librespot on a Zero W). Wired audio and USB-C charging are new here and have not
+  been built; their open checks are in [VALIDATION.md](docs/guide/VALIDATION.md). If you build one, please open an issue with what worked.
 
 ## Credits
 
