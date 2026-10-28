@@ -142,41 +142,40 @@ def composite_display(t):
 
 def power(t):
     d = new_drawing(t)
-    chg = d.add(elm.Ic(pins=[
-        elm.IcPin(name="USB in", side="left", slot="2/2"),
-        elm.IcPin(name="BAT", side="right", slot="2/2"),
-        elm.IcPin(name="GND", side="right", slot="1/2"),
+    usb = d.add(elm.Ic(pins=[
+        elm.IcPin(name="VBUS (2)", side="right", slot="2/2"),
+        elm.IcPin(name="GND (1)", side="right", slot="1/2"),
     ], edgepadW=0.7, edgepadH=0.6, pinspacing=1.2, leadlen=0.9, w=3.0)
-        .label("U2  Adafruit #1905 charger", loc="top", fontsize=10))
+        .label("J3  Adafruit #6050\nUSB-C breakout", loc="top", fontsize=10))
     boost = d.add(elm.Ic(pins=[
-        elm.IcPin(name="BAT", side="left", slot="3/3"),
-        elm.IcPin(name="EN", side="left", slot="1/3"),
-        elm.IcPin(name="5V", side="right", slot="3/3"),
-        elm.IcPin(name="GND", side="right", slot="1/3", anchorname="GNDOUT"),
-    ], edgepadW=0.7, edgepadH=0.6, pinspacing=1.2, leadlen=0.9, w=3.0)
-        .label("U3  Adafruit #2030 PowerBoost 1000 Basic", loc="top", fontsize=10)
-        .at((chg.center[0] + 14, chg.center[1] - 1.2)).anchor("center"))
-    d += elm.Line().at(chg["USB in"]).left().length(1.0)
-    d += elm.Dot(open=True).label("USB\ncharge port", loc="left")
-    bx = chg["BAT"][0] + 3.0
-    d += elm.Line().at(chg["BAT"]).right().length(3.0).color(t["red"])
-    d += elm.Dot().color(t["red"])
-    d += elm.Wire("|-").to(boost["BAT"]).color(t["red"])
-    d += elm.Battery().at((bx, chg["BAT"][1])).down().length(3.5).label("BT1  3.7 V Li-ion", loc="bottom", ofst=0.4)
+        elm.IcPin(name="USB", side="left", slot="4/4"),
+        elm.IcPin(name="GND", side="left", slot="3/4", anchorname="GNDIN"),
+        elm.IcPin(name="BAT (JST)", side="left", slot="2/4", anchorname="BAT"),
+        elm.IcPin(name="EN", side="left", slot="1/4"),
+        elm.IcPin(name="5V", side="right", slot="4/4"),
+        elm.IcPin(name="GND", side="right", slot="3/4", anchorname="GNDOUT"),
+    ], edgepadW=0.7, edgepadH=0.6, pinspacing=1.2, leadlen=0.9, w=3.4)
+        .label("U3  Adafruit #2465 PowerBoost 1000C", loc="top", fontsize=10)
+        .at((usb.center[0] + 11, usb.center[1] - 1.8)).anchor("center"))
+    d += elm.Wire("-|").at(usb["VBUS (2)"]).to(boost["USB"]).color(t["red"])
+    d += elm.Wire("-|").at(usb["GND (1)"]).to(boost["GNDIN"])
+    d += elm.Line().at(boost["BAT"]).left().length(4.6).color(t["red"])
+    d += elm.Battery().down().length(3.6).label("BT1  3.7 V Li-ion\n1000 mAh or more", loc="top", ofst=0.4)
     d += elm.Ground()
-    d += elm.Line().at(chg["GND"]).right().length(0.8)
-    d += elm.Ground()
-    d += elm.Line().at(boost["EN"]).left().length(2.0)
-    d += elm.Switch().down().length(1.5).label("SW1 hold switch\nclosed = OFF", loc="top", ofst=0.5)
+    d += elm.Line().at(boost["EN"]).left().length(1.4)
+    d += elm.Line().down().length(1.0)
+    d += elm.Switch().down().length(1.5).label("SW1 hold switch\nclosed = OFF", loc="bottom", ofst=0.4)
     d += elm.Ground()
     d += elm.Line().at(boost["5V"]).right().length(1.6).color(t["red"])
-    d += elm.Dot(open=True).label("+5V rail:\nPi pin 2, display V+,\nmotor M1 (+)", loc="right").color(t["red"])
+    d += elm.Dot(open=True).label("+5V rail:\nPi pins 2 and 4, display V+,\nmotor M1 (+)", loc="right").color(t["red"])
     d += elm.Line().at(boost["GNDOUT"]).right().length(1.6)
     d += elm.Dot(open=True).label("GND: Pi pin 6", loc="right")
-    d += elm.Label().at((chg.center[0] + 8, bottom(chg) - 4.2)).label(
-        "PowerBoost EN is pulled up to BAT; tying it to GND turns the 5 V output off (Adafruit).\n"
-        "sPot used the iPod hold switch this way. LBO is pulled up to BAT: never wire it straight\n"
-        "to a GPIO. Feeding 5 V into the GPIO header bypasses the Pi's input protection.",
+    d += elm.Label().at((usb.center[0] + 8, bottom(boost) - 4.4)).label(
+        "J3 has 5.1 kΩ from CC1 and CC2 to GND, so USB-C-to-C chargers turn on 5 V (no USB-PD; 5 V only).\n"
+        "U3 charges the cell at 1 A and runs the iPod from USB while it charges (load sharing).\n"
+        "EN is pulled up; tying it to GND turns the 5 V output off, and charging carries on (Adafruit).\n"
+        "LBO is pulled up to BAT: never wire it straight to a GPIO. 5 V into the header bypasses the Pi's\n"
+        "input protection.",
         fontsize=9)
     save(d, "04-power", t)
 

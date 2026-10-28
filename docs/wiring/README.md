@@ -93,13 +93,16 @@ the I2S bit clock for wired audio. See the upstream table in
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="04-power-dark.svg">
-  <img alt="Schematic: USB charger feeding the Li-ion cell and the PowerBoost 1000 Basic BAT input; hold switch from EN to ground; PowerBoost 5V and GND out to the Pi, display and motor" src="04-power.svg">
+  <img alt="Schematic: USB-C breakout J3 (VBUS pin 2, GND pin 1) to the USB and GND pads of the PowerBoost 1000C U3; Li-ion cell on U3's BAT JST; hold switch from EN to ground; U3 5V and GND out to the Pi, display and motor" src="04-power.svg">
 </picture>
 
-![Harness: from the PowerBoost's 5V and GND pads, red and black wires to Pi pins 2 and 6 (24 AWG) and to the display's power wires (26 AWG), a red wire to the motor's positive lead, and white EN plus black GND wires to the hold switch](harness-power.svg)
+![Harness: red and black 24 AWG from the USB-C breakout's VBUS and GND pads to the PowerBoost's USB and GND pads; from the PowerBoost's 5V and GND pads, red and black wires to Pi pins 2 and 6 (24 AWG) and to the display's power wires (26 AWG), a red wire to the motor's positive lead, and white EN plus black GND wires to the hold switch](harness-power.svg)
 
 The PowerBoost appears once per destination in the harness drawing so that no wires cross;
-every row starts at the same 5V, GND and EN pads.
+every row starts at the same 5V, GND and EN pads. Sources: Adafruit's
+[PowerBoost 1000C pinouts](https://learn.adafruit.com/adafruit-powerboost-1000c-load-share-usb-charge-boost/pinouts)
+and the [#6050 board file](https://github.com/adafruit/Adafruit-Sunken-USB-Type-C-Breakout-PCB)
+(pad 1 GND, pad 2 VBUS; 5.1 kΩ on CC1 and CC2).
 
 ## Wired audio
 
@@ -120,5 +123,6 @@ Raspberry Pi pinout for I2S (PCM) and I2C1.
 
 ![Original sPot wiring diagram by Guy Dupont](https://raw.githubusercontent.com/trystendsmyth/retro-ipod-spotify-revival/main/.docs/sPot_schematic.png)
 
-Schematics 01-04 reproduce these connections; the only electrical addition there is D1.
-Schematic 05 (wired audio) is new in this build.
+Schematics 01-03 reproduce these connections; the only electrical addition there is D1.
+Schematic 04 replaces the original charger and PowerBoost 1000 Basic with a USB-C input and
+a PowerBoost 1000C, and schematic 05 (wired audio) is new in this build.
